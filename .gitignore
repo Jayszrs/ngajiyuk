@@ -1,0 +1,6 @@
+/uploads/*
+!/uploads/.htaccess
+/.env
+/logs/*.log
+/.idea/
+/.vscode/

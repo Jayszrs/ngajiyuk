@@ -1,0 +1,10 @@
+<?php
+declare(strict_types=1);
+require dirname(__DIR__) . '/bootstrap.php';
+$user=require_api_user();$pdo=db();
+if($_SERVER['REQUEST_METHOD']==='GET'){$year=trim((string)($_GET['tahun_ajaran']??ACTIVE_ACADEMIC_YEAR));$stmt=$pdo->prepare('SELECT id,tahun_ajaran,level,nama_surah,urutan FROM surah_curriculum WHERE tahun_ajaran=? ORDER BY level,urutan,nama_surah');$stmt->execute([$year]);json_response(true,'Data surat berhasil dimuat.',$stmt->fetchAll());}
+if($_SERVER['REQUEST_METHOD']!=='POST')json_response(false,'Metode tidak diizinkan.',null,405);$user=require_api_user('guru','admin');verify_csrf();$data=request_data();$action=(string)($data['action']??'');$id=(string)($data['surah_id']??'');
+if($action==='save'){$year=trim((string)($data['tahun_ajaran']??ACTIVE_ACADEMIC_YEAR));$level=(int)($data['level']??0);$name=trim((string)($data['nama_surah']??''));$order=(int)($data['urutan']??0);if(!preg_match('/^[0-9]{4}\/[0-9]{4}$/',$year)||$level<1||$level>9||$name===''||mb_strlen($name)>120||$order<1)throw new RuntimeException('Tahun, level, nama surat, dan urutan wajib valid.');try{if($id){$pdo->prepare('UPDATE surah_curriculum SET tahun_ajaran=?,level=?,nama_surah=?,urutan=?,updated_at=NOW() WHERE id=?')->execute([$year,$level,$name,$order,$id]);}else{$id=uuidv4();$pdo->prepare('INSERT INTO surah_curriculum(id,tahun_ajaran,level,nama_surah,urutan,created_by)VALUES(?,?,?,?,?,?)')->execute([$id,$year,$level,$name,$order,$user['id']]);}audit_event('surah_curriculum_saved','success',$id,['year'=>$year,'level'=>$level,'surah'=>$name]);json_response(true,'Data surat berhasil disimpan.');}catch(PDOException $e){throw new RuntimeException('Surat yang sama sudah terdaftar pada level dan tahun ini.');}}
+if($action==='delete'){$pdo->prepare('DELETE FROM surah_curriculum WHERE id=?')->execute([$id]);audit_event('surah_curriculum_deleted','success',null,['surah_id'=>$id]);json_response(true,'Data surat berhasil dihapus.');}
+throw new RuntimeException('Aksi data surat tidak dikenali.');
+
