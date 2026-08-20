@@ -1,13 +1,49 @@
+# ==========================================================
+# NgajiYuk - Apache / XAMPP Security
+# ==========================================================
+
+# Jangan tampilkan isi direktori
 Options -Indexes
+
+# Halaman default
 DirectoryIndex index.php
 
+
+# ==========================================================
+# SECURITY HEADERS
+# ==========================================================
+
 <IfModule mod_headers.c>
-  Header always set X-Content-Type-Options "nosniff"
-  Header always set X-Frame-Options "SAMEORIGIN"
-  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
 
-<FilesMatch "^(\.env|composer\.(json|lock)|MIGRATION-REPORT\.md)$">
-  Require all denied
+
+# ==========================================================
+# BLOCK SENSITIVE FILES
+# ==========================================================
+
+<FilesMatch "^(\.env.*|composer\.(json|lock)|MIGRATION-REPORT\.md|README.*\.md|.*\.sql)$">
+    Require all denied
 </FilesMatch>
 
+
+# ==========================================================
+# BLOCK HIDDEN FILES
+# ==========================================================
+
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+
+# ==========================================================
+# BLOCK INTERNAL FOLDERS FROM DIRECT BROWSER ACCESS
+# ==========================================================
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteRule ^(?:config|database|docs|includes|tests)(?:/|$) - [F,L,NC]
+</IfModule>

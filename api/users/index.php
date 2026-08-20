@@ -1,19 +1,19 @@
 <?php
-
 declare(strict_types=1);
 
 require dirname(__DIR__) . '/bootstrap.php';
 
 $admin = require_api_user('admin');
-
 $pdo = db();
 
 
-/**
- * GET USERS
- */
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+/*
+|--------------------------------------------------------------------------
+| GET USERS
+|--------------------------------------------------------------------------
+*/
 
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $rows = $pdo
         ->query(
             'SELECT
@@ -39,9 +39,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 }
 
 
-/**
- * Hanya POST setelah ini.
- */
+/*
+|--------------------------------------------------------------------------
+| POST ONLY
+|--------------------------------------------------------------------------
+*/
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_response(
         false,
@@ -72,13 +75,13 @@ if ($action === '') {
 }
 
 
-/**
- * =========================================================
- * CREATE USER
- * =========================================================
- */
-if ($action === 'create') {
+/*
+|--------------------------------------------------------------------------
+| CREATE USER
+|--------------------------------------------------------------------------
+*/
 
+if ($action === 'create') {
     $name = trim(
         (string) ($data['full_name'] ?? '')
     );
@@ -91,28 +94,29 @@ if ($action === 'create') {
         (string) ($data['email'] ?? '')
     );
 
-    $email =
-        $emailInput !== ''
-            ? strtolower($emailInput)
-            : null;
+    $email = $emailInput !== ''
+        ? strtolower($emailInput)
+        : null;
 
     $role = trim(
         (string) ($data['role'] ?? '')
     );
 
-    $password =
-        (string) ($data['password'] ?? '');
+    $password = (string) (
+        $data['password'] ?? ''
+    );
 
-    $confirmation =
-        (string) (
-            $data['password_confirmation']
-            ?? ''
-        );
+    $confirmation = (string) (
+        $data['password_confirmation'] ?? ''
+    );
 
 
-    /**
-     * Validasi nama
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDATION
+    |--------------------------------------------------------------------------
+    */
+
     if ($name === '') {
         throw new RuntimeException(
             'Nama lengkap wajib diisi.'
@@ -125,10 +129,6 @@ if ($action === 'create') {
         );
     }
 
-
-    /**
-     * Validasi username
-     */
     if (
         !preg_match(
             '/^[A-Za-z0-9._-]{3,80}$/D',
@@ -140,17 +140,13 @@ if ($action === 'create') {
         );
     }
 
-
-    /**
-     * Validasi role
-     */
     if (
         !in_array(
             $role,
             [
                 'admin',
                 'guru',
-                'orang_tua'
+                'orang_tua',
             ],
             true
         )
@@ -160,10 +156,6 @@ if ($action === 'create') {
         );
     }
 
-
-    /**
-     * Validasi email
-     */
     if (
         $email !== null &&
         !filter_var(
@@ -185,10 +177,6 @@ if ($action === 'create') {
         );
     }
 
-
-    /**
-     * Validasi password
-     */
     if (strlen($password) < 8) {
         throw new RuntimeException(
             'Password minimal 8 karakter.'
@@ -202,10 +190,12 @@ if ($action === 'create') {
     }
 
 
-    /**
-     * Cek username/email terlebih dahulu
-     * agar pesan error lebih jelas.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | CHECK DUPLICATE USERNAME / EMAIL
+    |--------------------------------------------------------------------------
+    */
+
     $check = $pdo->prepare(
         'SELECT
             id,
@@ -224,13 +214,12 @@ if ($action === 'create') {
     $check->execute([
         $username,
         $email,
-        $email
+        $email,
     ]);
 
     $existingUser = $check->fetch();
 
     if ($existingUser) {
-
         if (
             strcasecmp(
                 (string) $existingUser['username'],
@@ -248,23 +237,24 @@ if ($action === 'create') {
     }
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | CREATE ACCOUNT
+    |--------------------------------------------------------------------------
+    */
+
     $id = uuidv4();
 
-    $passwordHash =
-        password_hash(
-            $password,
-            PASSWORD_DEFAULT
-        );
+    $passwordHash = password_hash(
+        $password,
+        PASSWORD_DEFAULT
+    );
 
 
     try {
-
         $pdo->beginTransaction();
 
 
-        /**
-         * users
-         */
         $insertUser = $pdo->prepare(
             'INSERT INTO users (
                 id,
@@ -299,13 +289,10 @@ if ($action === 'create') {
             $passwordHash,
             $name,
             $role,
-            $admin['id']
+            $admin['id'],
         ]);
 
 
-        /**
-         * user_roles
-         */
         $insertRole = $pdo->prepare(
             'INSERT INTO user_roles (
                 id,
@@ -320,29 +307,28 @@ if ($action === 'create') {
             uuidv4(),
             $id,
             $email,
-            $role
+            $role,
         ]);
 
 
-        /**
-         * Teacher profile
-         *
-         * Hanya dibuat kalau role adalah guru.
-         */
-        if ($role === 'guru') {
+        /*
+        |--------------------------------------------------------------------------
+        | CREATE TEACHER PROFILE
+        |--------------------------------------------------------------------------
+        */
 
-            $insertTeacher =
-                $pdo->prepare(
-                    'INSERT INTO teacher_profiles (
-                        user_id,
-                        full_name
-                    )
-                    VALUES (?, ?)'
-                );
+        if ($role === 'guru') {
+            $insertTeacher = $pdo->prepare(
+                'INSERT INTO teacher_profiles (
+                    user_id,
+                    full_name
+                )
+                VALUES (?, ?)'
+            );
 
             $insertTeacher->execute([
                 $id,
-                $name
+                $name,
             ]);
         }
 
@@ -356,7 +342,7 @@ if ($action === 'create') {
             $id,
             [
                 'target' => $username,
-                'role' => $role
+                'role' => $role,
             ]
         );
 
@@ -367,37 +353,27 @@ if ($action === 'create') {
             [
                 'id' => $id,
                 'username' => $username,
-                'role' => $role
+                'role' => $role,
             ],
             201
         );
 
     } catch (Throwable $error) {
-
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
 
 
-        /**
-         * Jangan sembunyikan error asli dari log XAMPP.
-         */
         error_log(
             'NgajiYuk create user gagal: '
             . $error->getMessage()
         );
 
 
-        /**
-         * MySQL duplicate key = 1062.
-         */
         if ($error instanceof PDOException) {
-
-            $mysqlErrorCode =
-                (int) (
-                    $error->errorInfo[1]
-                    ?? 0
-                );
+            $mysqlErrorCode = (int) (
+                $error->errorInfo[1] ?? 0
+            );
 
             if ($mysqlErrorCode === 1062) {
                 throw new RuntimeException(
@@ -412,9 +388,12 @@ if ($action === 'create') {
 }
 
 
-/**
- * Selain CREATE membutuhkan user_id.
- */
+/*
+|--------------------------------------------------------------------------
+| TARGET USER REQUIRED
+|--------------------------------------------------------------------------
+*/
+
 if ($targetId === '') {
     throw new RuntimeException(
         'ID akun tidak ditemukan.'
@@ -430,7 +409,7 @@ $stmt = $pdo->prepare(
 );
 
 $stmt->execute([
-    $targetId
+    $targetId,
 ]);
 
 $target = $stmt->fetch();
@@ -443,16 +422,21 @@ if (!$target) {
 }
 
 
-/**
- * =========================================================
- * USER ACTIONS
- * =========================================================
- */
+/*
+|--------------------------------------------------------------------------
+| USER ACTIONS
+|--------------------------------------------------------------------------
+*/
+
 switch ($action) {
 
-    /**
-     * APPROVE
-     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | APPROVE
+    |--------------------------------------------------------------------------
+    */
+
     case 'approve':
 
         $stmt = $pdo->prepare(
@@ -467,7 +451,7 @@ switch ($action) {
 
         $stmt->execute([
             $admin['id'],
-            $targetId
+            $targetId,
         ]);
 
 
@@ -476,8 +460,7 @@ switch ($action) {
             'success',
             $targetId,
             [
-                'target' =>
-                    $target['username']
+                'target' => $target['username'],
             ]
         );
 
@@ -488,9 +471,12 @@ switch ($action) {
         );
 
 
-    /**
-     * REJECT
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | REJECT
+    |--------------------------------------------------------------------------
+    */
+
     case 'reject':
 
         if ($targetId === $admin['id']) {
@@ -498,6 +484,7 @@ switch ($action) {
                 'Akun yang sedang digunakan tidak dapat ditolak.'
             );
         }
+
 
         $stmt = $pdo->prepare(
             'UPDATE users
@@ -509,7 +496,7 @@ switch ($action) {
         );
 
         $stmt->execute([
-            $targetId
+            $targetId,
         ]);
 
 
@@ -518,8 +505,7 @@ switch ($action) {
             'success',
             $targetId,
             [
-                'target' =>
-                    $target['username']
+                'target' => $target['username'],
             ]
         );
 
@@ -530,22 +516,28 @@ switch ($action) {
         );
 
 
-    /**
-     * TOGGLE ACTIVE
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | TOGGLE ACTIVE
+    |--------------------------------------------------------------------------
+    */
+
     case 'toggle_active':
-
-        if ($targetId === $admin['id']) {
-            throw new RuntimeException(
-                'Akun Admin yang sedang digunakan tidak dapat dinonaktifkan.'
-            );
-        }
-
 
         $active = filter_var(
             $data['active'] ?? false,
             FILTER_VALIDATE_BOOL
         );
+
+
+        if (
+            $targetId === $admin['id'] &&
+            !$active
+        ) {
+            throw new RuntimeException(
+                'Akun Admin yang sedang digunakan tidak dapat dinonaktifkan.'
+            );
+        }
 
 
         $stmt = $pdo->prepare(
@@ -558,7 +550,7 @@ switch ($action) {
 
         $stmt->execute([
             $active ? 1 : 0,
-            $targetId
+            $targetId,
         ]);
 
 
@@ -569,8 +561,7 @@ switch ($action) {
             'success',
             $targetId,
             [
-                'target' =>
-                    $target['username']
+                'target' => $target['username'],
             ]
         );
 
@@ -583,9 +574,12 @@ switch ($action) {
         );
 
 
-    /**
-     * CHANGE ROLE
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | CHANGE ROLE
+    |--------------------------------------------------------------------------
+    */
+
     case 'change_role':
 
         $role = trim(
@@ -599,7 +593,7 @@ switch ($action) {
                 [
                     'admin',
                     'guru',
-                    'orang_tua'
+                    'orang_tua',
                 ],
                 true
             )
@@ -620,10 +614,120 @@ switch ($action) {
         }
 
 
-        try {
+        $oldRole = (string) $target['role'];
 
+
+        /*
+         * Kalau role sama, tidak perlu cleanup atau update data.
+         */
+        if ($oldRole === $role) {
+            json_response(
+                true,
+                'Role akun tidak berubah.'
+            );
+        }
+
+
+        try {
             $pdo->beginTransaction();
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | CLEANUP ROLE GURU
+            |--------------------------------------------------------------------------
+            |
+            | Kalau user sebelumnya Guru dan sekarang bukan Guru:
+            |
+            | - Lepaskan dari wali kelas.
+            | - Lepaskan dari siswa aktif yang ditugaskan.
+            | - Hapus teacher profile.
+            |
+            | Data laporan historis TIDAK dihapus.
+            |
+            */
+
+            if (
+                $oldRole === 'guru' &&
+                $role !== 'guru'
+            ) {
+                $detachClasses = $pdo->prepare(
+                    'UPDATE classes
+                     SET
+                        teacher_id = NULL,
+                        wali_kelas = NULL,
+                        updated_at = NOW()
+                     WHERE teacher_id = ?'
+                );
+
+                $detachClasses->execute([
+                    $targetId,
+                ]);
+
+
+                $detachStudents = $pdo->prepare(
+                    'UPDATE students
+                     SET
+                        teacher_id = NULL,
+                        updated_at = NOW()
+                     WHERE teacher_id = ?'
+                );
+
+                $detachStudents->execute([
+                    $targetId,
+                ]);
+
+
+                $deleteTeacherProfile =
+                    $pdo->prepare(
+                        'DELETE FROM teacher_profiles
+                         WHERE user_id = ?'
+                    );
+
+                $deleteTeacherProfile->execute([
+                    $targetId,
+                ]);
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | CLEANUP ROLE ORANG TUA
+            |--------------------------------------------------------------------------
+            |
+            | Kalau user sebelumnya Orang Tua dan pindah role,
+            | hubungan aktif dengan siswa dinonaktifkan.
+            |
+            | Record tidak dihapus supaya histori tetap ada.
+            |
+            */
+
+            if (
+                $oldRole === 'orang_tua' &&
+                $role !== 'orang_tua'
+            ) {
+                $disableParentLinks =
+                    $pdo->prepare(
+                        'UPDATE parent_student_links
+                         SET
+                            status = \'inactive\',
+                            updated_at = NOW()
+                         WHERE
+                            parent_id = ?
+                            AND status = \'active\''
+                    );
+
+                $disableParentLinks->execute([
+                    $targetId,
+                ]);
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | UPDATE MAIN ROLE
+            |--------------------------------------------------------------------------
+            */
 
             $updateUser = $pdo->prepare(
                 'UPDATE users
@@ -635,13 +739,16 @@ switch ($action) {
 
             $updateUser->execute([
                 $role,
-                $targetId
+                $targetId,
             ]);
 
 
-            /**
-             * Pastikan user_roles selalu ada.
-             */
+            /*
+            |--------------------------------------------------------------------------
+            | UPDATE USER_ROLES
+            |--------------------------------------------------------------------------
+            */
+
             $upsertRole = $pdo->prepare(
                 'INSERT INTO user_roles (
                     id,
@@ -660,16 +767,20 @@ switch ($action) {
                 uuidv4(),
                 $targetId,
                 $target['email'],
-                $role
+                $role,
             ]);
 
 
-            /**
-             * Kalau berubah menjadi Guru,
-             * pastikan teacher_profiles tersedia.
-             */
-            if ($role === 'guru') {
+            /*
+            |--------------------------------------------------------------------------
+            | NEW ROLE = GURU
+            |--------------------------------------------------------------------------
+            |
+            | Buat kembali teacher profile bila diperlukan.
+            |
+            */
 
+            if ($role === 'guru') {
                 $teacherProfile =
                     $pdo->prepare(
                         'INSERT INTO teacher_profiles (
@@ -684,7 +795,7 @@ switch ($action) {
 
                 $teacherProfile->execute([
                     $targetId,
-                    $target['full_name']
+                    $target['full_name'],
                 ]);
             }
 
@@ -697,12 +808,9 @@ switch ($action) {
                 'success',
                 $targetId,
                 [
-                    'from' =>
-                        $target['role'],
-                    'to' =>
-                        $role,
-                    'target' =>
-                        $target['username']
+                    'from' => $oldRole,
+                    'to' => $role,
+                    'target' => $target['username'],
                 ]
             );
 
@@ -718,31 +826,32 @@ switch ($action) {
                 $pdo->rollBack();
             }
 
+
             error_log(
                 'NgajiYuk change role gagal: '
                 . $error->getMessage()
             );
 
+
             throw $error;
         }
 
 
-    /**
-     * CHANGE PASSWORD
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | CHANGE PASSWORD
+    |--------------------------------------------------------------------------
+    */
+
     case 'change_password':
 
-        $password =
-            (string) (
-                $data['password']
-                ?? ''
-            );
+        $password = (string) (
+            $data['password'] ?? ''
+        );
 
-        $confirmation =
-            (string) (
-                $data['password_confirmation']
-                ?? ''
-            );
+        $confirmation = (string) (
+            $data['password_confirmation'] ?? ''
+        );
 
 
         if (strlen($password) < 8) {
@@ -767,12 +876,13 @@ switch ($action) {
              WHERE id = ?'
         );
 
+
         $stmt->execute([
             password_hash(
                 $password,
                 PASSWORD_DEFAULT
             ),
-            $targetId
+            $targetId,
         ]);
 
 
@@ -781,10 +891,8 @@ switch ($action) {
             'success',
             $targetId,
             [
-                'source' =>
-                    'administrator',
-                'target' =>
-                    $target['username']
+                'source' => 'administrator',
+                'target' => $target['username'],
             ]
         );
 
@@ -795,9 +903,12 @@ switch ($action) {
         );
 
 
-    /**
-     * DELETE
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | DELETE
+    |--------------------------------------------------------------------------
+    */
+
     case 'delete':
 
         if ($targetId === $admin['id']) {
@@ -808,7 +919,6 @@ switch ($action) {
 
 
         if ($target['role'] === 'admin') {
-
             $count = (int) $pdo
                 ->query(
                     'SELECT COUNT(*)
@@ -829,28 +939,23 @@ switch ($action) {
 
 
         $deletedUsername =
-            $target['username'];
+            (string) $target['username'];
 
         $deletedRole =
-            $target['role'];
+            (string) $target['role'];
 
 
         try {
-
             $stmt = $pdo->prepare(
                 'DELETE FROM users
                  WHERE id = ?'
             );
 
             $stmt->execute([
-                $targetId
+                $targetId,
             ]);
 
 
-            /**
-             * FK CASCADE pada schema akan menangani
-             * user_roles / teacher_profiles yang terkait.
-             */
             audit_event(
                 'account_deleted',
                 'success',
@@ -858,8 +963,9 @@ switch ($action) {
                 [
                     'deleted_username' =>
                         $deletedUsername,
+
                     'role' =>
-                        $deletedRole
+                        $deletedRole,
                 ]
             );
 
@@ -876,9 +982,16 @@ switch ($action) {
                 . $error->getMessage()
             );
 
+
             throw $error;
         }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | UNKNOWN ACTION
+    |--------------------------------------------------------------------------
+    */
 
     default:
 
