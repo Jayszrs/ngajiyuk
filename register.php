@@ -408,7 +408,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     >
 
     <title>
-        Buat akun · NgajiYuk
+        Buat akun · Catatan Mengaji Digital
     </title>
 
     <link
@@ -443,7 +443,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <span>
 
                 <strong>
-                    NGAJIYUK
+                    CATATAN MENGAJI DIGITAL
                 </strong>
 
                 <small

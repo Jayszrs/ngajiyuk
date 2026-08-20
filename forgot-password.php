@@ -200,7 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     >
 
     <title>
-        Lupa password · NgajiYuk
+        Lupa password · Catatan Mengaji Digital
     </title>
 
     <link
@@ -225,7 +225,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             >
 
             <span>
-                <strong>NGAJIYUK</strong>
+                <strong>CATATAN MENGAJI DIGITAL</strong>
 
                 <small style="color:#d4f6e5">
                     SD ISLAM LABSCHOOL BANI SALEH

@@ -3,7 +3,7 @@ declare(strict_types=1);
 require dirname(__DIR__) . '/config/bootstrap.php';
 header('Content-Type: application/json; charset=utf-8');
 
-set_exception_handler(function (Throwable $error): never {
+set_exception_handler(function (Throwable $error): void {
     error_log('NgajiYuk API: ' . $error->getMessage());
     $message = $error instanceof RuntimeException ? $error->getMessage() : 'Terjadi kesalahan pada server.';
     json_response(false, $message, null, $error instanceof RuntimeException ? 422 : 500);
@@ -16,4 +16,3 @@ function require_api_user(string ...$roles): array
     if ($roles && !in_array($user['role'], $roles, true)) json_response(false, 'Akses tidak diizinkan.', null, 403);
     return $user;
 }
-

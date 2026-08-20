@@ -11,6 +11,24 @@ $user = require_api_user(
     'admin'
 );
 
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['action'] ?? '') === 'template') {
+    header('Content-Type: text/csv; charset=utf-8', true);
+    header('Content-Disposition: attachment; filename="template-data-siswa.csv"');
+    echo "\xEF\xBB\xBF";
+    $output = fopen('php://output', 'wb');
+    fputcsv($output, [
+        'Nama Peserta Didik', 'L/P', 'NIS', 'NIK', 'Tempat/Tanggal Lahir',
+        'Ayah', 'Ibu', 'Wali Murid', 'Alamat', 'Nomor Telepon', 'Kelas', 'Level',
+    ]);
+    fputcsv($output, [
+        'Contoh Nama Siswa', 'L', '262701001', '3275010101010001',
+        'Bekasi, 1 Januari 2020', 'Nama Ayah', 'Nama Ibu', '',
+        'Alamat lengkap', '081234567890', '1A', '1',
+    ]);
+    fclose($output);
+    exit;
+}
+
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_response(

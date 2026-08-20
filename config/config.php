@@ -7,7 +7,7 @@ declare(strict_types=1);
 |--------------------------------------------------------------------------
 */
 
-define('APP_NAME', 'NgajiYuk');
+define('APP_NAME', 'Catatan Mengaji Digital');
 define('APP_SUBTITLE', 'SD Islam Labschool Bani Saleh');
 
 
@@ -127,17 +127,7 @@ define(
 );
 
 
-/*
-|--------------------------------------------------------------------------
-| ACADEMIC YEAR
-|--------------------------------------------------------------------------
-|
-| Untuk sementara tetap mengikuti behavior aplikasi lama.
-| Tahun ajaran kita perbaiki pada fix terpisah supaya perubahan
-| tidak bercampur dengan BASE_URL.
-|
-*/
-
+/* Fallback saja. Runtime membaca academic_settings melalui helper. */
 define('ACTIVE_ACADEMIC_YEAR', '2026/2027');
 
 
