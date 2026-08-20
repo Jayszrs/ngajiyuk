@@ -38,7 +38,7 @@ $menus = [
         <a class="brand" href="<?= url(dashboard_path($role)) ?>">
             <img src="<?= url('assets/images/logo.png') ?>" alt="Logo SD Islam Labschool Bani Saleh">
             <span>
-                <strong>CATATAN MENGAJI DIGITAL</strong>
+                <strong>NGAJI YUK</strong>
                 <small>SD ISLAM LABSCHOOL BANI SALEH</small>
             </span>
         </a>
