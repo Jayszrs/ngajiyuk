@@ -12,7 +12,7 @@ if (is_logged_in()) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#1b4332">
-    <title>Catatan Mengaji Digital · SD Islam Labschool Bani Saleh</title>
+    <title>Ngaji Yuk! · SD Islam Labschool Bani Saleh</title>
     <link rel="icon" href="<?= url('assets/images/favicon.ico') ?>">
     <link rel="stylesheet" href="<?= url('assets/css/app.css') ?>">
 </head>
@@ -21,7 +21,7 @@ if (is_logged_in()) {
     <div class="container nav-inner">
         <a class="brand" href="<?= url() ?>">
             <img src="<?= url('assets/images/logo.png') ?>" alt="Logo sekolah">
-            <span><strong>CATATAN MENGAJI DIGITAL</strong><small>SD ISLAM LABSCHOOL BANI SALEH</small></span>
+            <span><strong>NGAJI YUK!</strong><small>SD ISLAM LABSCHOOL BANI SALEH</small></span>
         </a>
         <div class="nav-actions">
             <a class="btn" href="<?= url('login.php') ?>">Masuk</a>
@@ -104,6 +104,6 @@ if (is_logged_in()) {
     </div>
 </section>
 
-<footer class="landing-footer"><div class="container footer-inner"><a class="brand" href="<?= url() ?>"><img src="<?= url('assets/images/logo.png') ?>" alt="Logo" style="width:32px;height:32px"><span><strong style="font-size:11px">CATATAN MENGAJI DIGITAL</strong><small>SD ISLAM LABSCHOOL BANI SALEH</small></span></a><span class="muted">© <?= date('Y') ?> SD Islam Labschool Bani Saleh. Hak cipta dilindungi.</span></div></footer>
+<footer class="landing-footer"><div class="container footer-inner"><a class="brand" href="<?= url() ?>"><img src="<?= url('assets/images/logo.png') ?>" alt="Logo" style="width:32px;height:32px"><span><strong style="font-size:11px">NGAJI YUK!</strong><small>SD ISLAM LABSCHOOL BANI SALEH</small></span></a><span class="muted">© <?= date('Y') ?> SD Islam Labschool Bani Saleh. Hak cipta dilindungi.</span></div></footer>
 </body>
 </html>

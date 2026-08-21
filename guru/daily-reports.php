@@ -1,67 +1,26 @@
 <?php
 declare(strict_types=1);
-require dirname(__DIR__) . '/config/bootstrap.php';
-$user = require_role('guru');
-$pdo = db();
-$students = $pdo->query("SELECT id,nama_lengkap,nis,kelas,level FROM students WHERE status='aktif' ORDER BY kelas,nama_lengkap")->fetchAll();
-$studentId = (string) ($_GET['student_id'] ?? ($students[0]['id'] ?? ''));
-$selected = null;
-foreach ($students as $student) { if ($student['id'] === $studentId) { $selected = $student; break; } }
-if (!$selected && $students) { $selected = $students[0]; $studentId = $selected['id']; }
-$daily = [];
-$surahs = [];
-if ($selected) {
-    $statement = $pdo->prepare('SELECT * FROM daily_student_reports WHERE student_id=? ORDER BY tanggal DESC LIMIT 366');
-    $statement->execute([$studentId]);
-    $daily = $statement->fetchAll();
-    $statement = $pdo->prepare('SELECT nama_surah FROM surah_curriculum WHERE tahun_ajaran=? AND level=? ORDER BY urutan');
-    $statement->execute([active_academic_year(), $selected['level']]);
-    $surahs = $statement->fetchAll(PDO::FETCH_COLUMN);
-}
-$pageTitle = 'Presensi & Laporan Harian';
-require ROOT_PATH . '/includes/header.php';
+require dirname(__DIR__).'/config/bootstrap.php';
+$user=require_role('guru');$pdo=db();
+$students=$pdo->query("SELECT id,nama_lengkap,nis,kelas,level FROM students WHERE status='aktif' ORDER BY CAST(LEFT(kelas,1) AS UNSIGNED),kelas,nama_lengkap")->fetchAll();
+$studentId=(string)($_GET['student_id']??($students[0]['id']??''));$selected=null;foreach($students as $student)if($student['id']===$studentId){$selected=$student;break;}if(!$selected&&$students){$selected=$students[0];$studentId=$selected['id'];}
+$daily=[];$surahs=[];$tahsin=[];$editDaily=null;
+if($selected){$stmt=$pdo->prepare('SELECT * FROM daily_student_reports WHERE student_id=? ORDER BY tanggal DESC LIMIT 366');$stmt->execute([$studentId]);$daily=$stmt->fetchAll();$editId=trim((string)($_GET['edit']??''));if($editId){foreach($daily as $row)if($row['id']===$editId){$editDaily=$row;break;}}$stmt=$pdo->prepare('SELECT nama_surah FROM surah_curriculum WHERE tahun_ajaran=? AND level=? ORDER BY urutan');$stmt->execute([active_academic_year(),$selected['level']]);$surahs=$stmt->fetchAll(PDO::FETCH_COLUMN);$stmt=$pdo->prepare('SELECT * FROM laporan_tahsin_tahfidz WHERE student_id=? ORDER BY tanggal DESC,created_at DESC LIMIT 100');$stmt->execute([$studentId]);$tahsin=$stmt->fetchAll();}
+$value=static fn(?array $row,string $key,string $fallback='')=>(string)($row[$key]??$fallback);
+$pageTitle='Presensi & Laporan Harian';require ROOT_PATH.'/includes/header.php';
 ?>
-<div class="page-head">
-  <div><h1 class="page-title">Presensi &amp; Laporan Harian</h1><p class="page-description">Rekap presensi, kegiatan, tadarus, hafalan, dan catatan Guru.</p></div>
-  <div class="page-actions">
-    <a class="btn btn-soft" href="<?= url('api/reports/export.php?student_id=' . urlencode($studentId)) ?>"><?= svg_icon('file', 16) ?> Download Excel</a>
-    <a class="btn btn-primary" href="<?= url('guru/reports.php?student_id=' . urlencode($studentId) . '&type=daily') ?>"><?= svg_icon('printer', 16) ?> Preview / Cetak Rapor Resmi</a>
-  </div>
-</div>
-<?php if ($selected): ?>
-<section class="card accent-top accent-green">
-  <h2 class="card-title"><?= svg_icon('users') ?> Input Laporan Harian</h2>
-  <form action="<?= url('api/reports/index.php') ?>" method="post" data-ajax class="form-grid form-grid-3">
-    <?= csrf_field() ?><input type="hidden" name="action" value="save_daily">
-    <div class="field span-2"><label>Siswa</label><select class="select" name="student_id" required onchange="window.location.href='<?= url('guru/daily-reports.php?student_id=') ?>'+encodeURIComponent(this.value)"><?php foreach ($students as $student): ?><option value="<?= e($student['id']) ?>" <?= $student['id'] === $studentId ? 'selected' : '' ?>><?= e($student['nama_lengkap'] . ' · Kelas ' . $student['kelas'] . ' · NIS ' . $student['nis']) ?></option><?php endforeach; ?></select></div>
-    <div class="field"><label>Tanggal</label><input class="input" type="date" name="tanggal" value="<?= date('Y-m-d') ?>" required></div>
-    <div class="field"><label>Status Presensi</label><select class="select" name="status_presensi"><?php foreach (['Hadir', 'Izin', 'Sakit', 'Alpa'] as $status): ?><option><?= e($status) ?></option><?php endforeach; ?></select></div>
-    <div class="field"><label>Kegiatan Harian</label><input class="input" name="kegiatan" placeholder="Contoh: Tahsin dan murojaah"></div>
-    <div class="field"><label>Ringkasan Tadarus</label><input class="input" name="ringkasan_tadarus" placeholder="Contoh: Al-Baqarah ayat 1–10"></div>
-    <div class="field"><label>Ringkasan Hafalan</label><input class="input" name="ringkasan_hafalan" placeholder="Contoh: Al-Mulk ayat 1–5"></div>
-    <div class="field span-2"><label>Catatan Guru</label><textarea class="textarea" name="catatan_guru" placeholder="Perkembangan atau arahan untuk orang tua..."></textarea></div>
-    <div class="field full"><button class="btn btn-accent" type="submit"><?= svg_icon('file', 16) ?> Simpan Laporan Harian</button></div>
-  </form>
-  <details class="advanced-form">
-    <summary>Tambahkan nilai Tahsin &amp; Tahfidz per surat</summary>
-    <form action="<?= url('api/reports/index.php') ?>" method="post" data-ajax class="form-grid form-grid-3" data-score-group>
-      <?= csrf_field() ?><input type="hidden" name="action" value="save_tahsin"><input type="hidden" name="student_id" value="<?= e($studentId) ?>">
-      <div class="field"><label>Tanggal</label><input class="input" type="date" name="tanggal" value="<?= date('Y-m-d') ?>" required></div>
-      <div class="field span-2"><label>Surat sesuai <?= e(level_name((int) $selected['level'])) ?></label><select class="select" name="nama_surah" required><option value="">Pilih surat</option><?php foreach ($surahs as $surah): ?><option><?= e($surah) ?></option><?php endforeach; ?></select></div>
-      <?php foreach (['kelancaran' => 'Kelancaran', 'makhraj' => 'Makhorijul Huruf', 'tajwid' => 'Hukum Tajwid', 'hafalan' => 'Sambung Ayat'] as $key => $label): ?><div class="field"><label><?= e($label) ?></label><input class="input" type="number" name="nilai_<?= e($key) ?>" min="0" max="100" value="80" data-score="<?= e($key) ?>" required></div><?php endforeach; ?>
-      <div class="field"><label>Rata-rata</label><output class="score-output" data-average>80.00</output></div>
-      <div class="field span-2"><label>Ayat / Halaman</label><input class="input" name="ayat"></div>
-      <div class="field full"><label>Keterangan</label><textarea class="textarea" name="keterangan"></textarea></div>
-      <div class="field full"><button class="btn btn-soft" type="submit">Simpan Nilai Surat</button></div>
-    </form>
-  </details>
-</section>
-<section class="card" style="margin-top:20px;padding:0;overflow:hidden">
-  <div class="student-report-head"><span class="avatar small"><?= e(initials($selected['nama_lengkap'])) ?></span><div><h2>Rapor Harian <?= e($selected['nama_lengkap']) ?></h2><p>NIS <?= e($selected['nis']) ?> · Kelas <?= e($selected['kelas']) ?></p></div></div>
-  <div class="table-wrap borderless"><table class="table"><thead><tr><th>Tanggal</th><th>Presensi</th><th>Kegiatan</th><th>Tadarus</th><th>Hafalan</th><th>Catatan</th></tr></thead><tbody>
-    <?php foreach ($daily as $row): ?><tr><td><?= e(format_date_id($row['tanggal'])) ?></td><td><span class="badge badge-green"><?= e($row['status_presensi']) ?></span></td><td><?= e($row['kegiatan'] ?: '-') ?></td><td><?= e($row['ringkasan_tadarus'] ?: '-') ?></td><td><?= e($row['ringkasan_hafalan'] ?: '-') ?></td><td><?= e($row['catatan_guru'] ?: '-') ?></td></tr><?php endforeach; ?>
-    <?php if (!$daily): ?><tr><td colspan="6"><div class="empty"><?= svg_icon('file', 40) ?><strong>Belum ada laporan harian.</strong>Data akan tampil setelah laporan pertama disimpan.</div></td></tr><?php endif; ?>
-  </tbody></table></div>
-</section>
-<?php else: ?><section class="card"><div class="empty"><strong>Belum ada siswa aktif</strong>Tambahkan atau impor siswa terlebih dahulu.</div></section><?php endif; ?>
-<?php require ROOT_PATH . '/includes/footer.php'; ?>
+<div class="page-head"><div><h1 class="page-title">Presensi &amp; Laporan Harian</h1><p class="page-description">Rekap presensi, kegiatan, tadarus, hafalan, dan catatan Guru yang terhubung ke rapor resmi.</p></div><div class="page-actions"><?php if($selected):?><a class="btn btn-soft" href="<?= url('api/reports/export.php?student_id='.urlencode($studentId)) ?>"><?= svg_icon('file',16) ?> Download Excel</a><a class="btn btn-primary" href="<?= url('guru/reports.php?student_id='.urlencode($studentId).'&type=daily') ?>"><?= svg_icon('printer',16) ?> Preview / Cetak Rapor Resmi</a><?php endif;?></div></div>
+<?php if($selected):?>
+<section class="card accent-top accent-green"><div class="filter-row" style="margin:0 0 20px"><div><h2 class="card-title"><?= svg_icon('users') ?> <?= $editDaily?'Edit':'Input' ?> Laporan Harian</h2><p class="card-subtitle">Satu laporan utama per siswa dan tanggal; menyimpan ulang akan memperbarui data.</p></div><?php if($editDaily):?><a class="btn btn-soft btn-sm" href="<?= url('guru/daily-reports.php?student_id='.urlencode($studentId)) ?>">Batal Edit</a><?php endif;?></div>
+<form action="<?= url('api/reports/index.php') ?>" method="post" data-ajax class="form-grid form-grid-3"><?= csrf_field() ?><input type="hidden" name="action" value="save_daily">
+<div class="field span-2"><label>Siswa</label><select class="select" name="student_id" required onchange="window.location.href='<?= url('guru/daily-reports.php?student_id=') ?>'+encodeURIComponent(this.value)"><?php foreach($students as $student):?><option value="<?= e($student['id']) ?>" <?= $student['id']===$studentId?'selected':'' ?>><?= e($student['nama_lengkap'].' · Kelas '.$student['kelas'].' · NIS '.$student['nis']) ?></option><?php endforeach;?></select></div>
+<div class="field"><label>Tanggal</label><input class="input" type="date" name="tanggal" value="<?= e($value($editDaily,'tanggal',date('Y-m-d'))) ?>" required></div>
+<div class="field"><label>Status Presensi</label><select class="select" name="status_presensi"><?php foreach(['Hadir','Izin','Sakit','Alpa'] as $status):?><option <?= $value($editDaily,'status_presensi','Hadir')===$status?'selected':'' ?>><?= e($status) ?></option><?php endforeach;?></select></div>
+<div class="field"><label>Kegiatan Harian</label><input class="input" name="kegiatan" value="<?= e($value($editDaily,'kegiatan')) ?>" placeholder="Contoh: Tahsin dan murojaah"></div><div class="field"><label>Ringkasan Tadarus</label><input class="input" name="ringkasan_tadarus" value="<?= e($value($editDaily,'ringkasan_tadarus')) ?>" placeholder="Contoh: Al-Baqarah ayat 1–10"></div><div class="field"><label>Ringkasan Hafalan</label><input class="input" name="ringkasan_hafalan" value="<?= e($value($editDaily,'ringkasan_hafalan')) ?>" placeholder="Contoh: Al-Mulk ayat 1–5"></div><div class="field span-2"><label>Catatan Guru</label><textarea class="textarea" name="catatan_guru" placeholder="Perkembangan atau arahan untuk orang tua..."><?= e($value($editDaily,'catatan_guru')) ?></textarea></div><div class="field full"><button class="btn btn-accent" type="submit"><?= svg_icon('file',16) ?> <?= $editDaily?'Perbarui':'Simpan' ?> Laporan Harian</button></div></form>
+<details class="advanced-form"><summary>Tambahkan nilai Tahsin &amp; Tahfidz per surat</summary><form action="<?= url('api/reports/index.php') ?>" method="post" data-ajax class="form-grid form-grid-3" data-score-group><?= csrf_field() ?><input type="hidden" name="action" value="save_tahsin"><input type="hidden" name="student_id" value="<?= e($studentId) ?>"><input type="hidden" name="tahun_ajaran" value="<?= e(active_academic_year()) ?>"><div class="field"><label>Tanggal</label><input class="input" type="date" name="tanggal" value="<?= date('Y-m-d') ?>" required></div><div class="field span-2"><label>Surat sesuai <?= e(level_name((int)$selected['level'])) ?></label><select class="select" name="nama_surah" required><option value="">Pilih surat</option><?php foreach($surahs as $surah):?><option><?= e($surah) ?></option><?php endforeach;?></select></div><?php foreach(['kelancaran'=>'Kelancaran','makhraj'=>'Makhorijul Huruf','tajwid'=>'Hukum Tajwid','hafalan'=>'Sambung Ayat'] as $key=>$label):?><div class="field"><label><?= e($label) ?></label><input class="input" type="number" name="nilai_<?= e($key) ?>" min="0" max="100" value="80" data-score="<?= e($key) ?>" required></div><?php endforeach;?><div class="field"><label>Rata-rata</label><output class="score-output" data-average>80.00</output></div><div class="field span-2"><label>Ayat / Halaman</label><input class="input" name="ayat"></div><div class="field full"><label>Keterangan</label><textarea class="textarea" name="keterangan"></textarea></div><div class="field full"><button class="btn btn-soft" type="submit">Simpan Nilai Surat</button></div></form></details></section>
+
+<section class="card" style="margin-top:20px;padding:0;overflow:hidden"><div class="student-report-head"><span class="avatar small"><?= e(initials($selected['nama_lengkap'])) ?></span><div><h2>Rapor Harian <?= e($selected['nama_lengkap']) ?></h2><p>NIS <?= e($selected['nis']) ?> · Kelas <?= e($selected['kelas']) ?></p></div></div><div class="table-wrap borderless"><table class="table"><thead><tr><th>Tanggal</th><th>Presensi</th><th>Kegiatan</th><th>Tadarus</th><th>Hafalan</th><th>Catatan</th><th>Aksi</th></tr></thead><tbody><?php foreach($daily as $row):?><tr><td><?= e(format_date_id($row['tanggal'])) ?></td><td><span class="badge badge-green"><?= e($row['status_presensi']) ?></span></td><td><?= e($row['kegiatan']?:'-') ?></td><td><?= e($row['ringkasan_tadarus']?:'-') ?></td><td><?= e($row['ringkasan_hafalan']?:'-') ?></td><td><?= e($row['catatan_guru']?:'-') ?></td><td><div style="display:flex;gap:6px"><a class="icon-button" href="<?= url('guru/daily-reports.php?student_id='.urlencode($studentId).'&edit='.urlencode($row['id'])) ?>" aria-label="Edit"><?= svg_icon('settings',14) ?></a><form action="<?= url('api/reports/index.php') ?>" method="post" data-ajax><?= csrf_field() ?><input type="hidden" name="action" value="delete"><input type="hidden" name="type" value="daily"><input type="hidden" name="student_id" value="<?= e($studentId) ?>"><input type="hidden" name="report_id" value="<?= e($row['id']) ?>"><button class="icon-button danger" data-confirm="Hapus laporan tanggal <?= e(format_date_id($row['tanggal'])) ?>?" aria-label="Hapus"><?= svg_icon('logout',14) ?></button></form></div></td></tr><?php endforeach;?><?php if(!$daily):?><tr><td colspan="7"><div class="empty"><?= svg_icon('file',40) ?><strong>Belum ada laporan harian.</strong>Data tampil setelah laporan pertama disimpan.</div></td></tr><?php endif;?></tbody></table></div></section>
+
+<section class="card" style="margin-top:20px;padding:0;overflow:hidden"><div class="student-report-head"><div><h2>Nilai Tahsin &amp; Tahfidz per Surat</h2><p><?= count($tahsin) ?> nilai tersimpan dan otomatis masuk rekap kelas/rapor harian.</p></div></div><div class="table-wrap borderless"><table class="table"><thead><tr><th>Tanggal</th><th>Surat</th><th>Ayat</th><th>Kelancaran</th><th>Makhorijul</th><th>Tajwid</th><th>Sambung</th><th>Rata-rata</th><th>Aksi</th></tr></thead><tbody><?php foreach($tahsin as $row):?><tr><td><?= e(format_date_id($row['tanggal'])) ?></td><td class="name"><?= e($row['nama_surah']) ?></td><td><?= e($row['ayat']?:'-') ?></td><td><?= e((string)$row['nilai_kelancaran']) ?></td><td><?= e((string)$row['nilai_makhraj']) ?></td><td><?= e((string)$row['nilai_tajwid']) ?></td><td><?= e((string)$row['nilai_hafalan']) ?></td><td><strong><?= e((string)$row['nilai_rata_rata']) ?></strong></td><td><form action="<?= url('api/reports/index.php') ?>" method="post" data-ajax><?= csrf_field() ?><input type="hidden" name="action" value="delete"><input type="hidden" name="type" value="tahsin"><input type="hidden" name="student_id" value="<?= e($studentId) ?>"><input type="hidden" name="report_id" value="<?= e($row['id']) ?>"><button class="icon-button danger" data-confirm="Hapus nilai surat ini?" aria-label="Hapus"><?= svg_icon('logout',14) ?></button></form></td></tr><?php endforeach;?><?php if(!$tahsin):?><tr><td colspan="9"><div class="empty"><strong>Belum ada nilai per surat</strong>Buka bagian tambah nilai di atas.</div></td></tr><?php endif;?></tbody></table></div></section>
+<?php else:?><section class="card"><div class="empty"><strong>Belum ada siswa aktif</strong>Tambahkan atau impor siswa terlebih dahulu.</div></section><?php endif;?>
+<?php require ROOT_PATH.'/includes/footer.php'; ?>

@@ -677,6 +677,15 @@ button {
   padding: 26px;
   box-shadow: var(--shadow);
 }
+.modal-card.modal-wide {
+  width: min(1120px, 100%);
+}
+.report-connection {
+  display: block;
+  margin-top: 4px;
+  color: #00895d;
+  font-weight: 800;
+}
 .modal-head {
   display: flex;
   justify-content: space-between;

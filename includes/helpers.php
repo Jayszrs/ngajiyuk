@@ -268,6 +268,7 @@ function svg_icon(string $name, int $size = 20): string
         'shield' => '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
         'clipboard' => '<path d="M9 5h6M9 3h6v4H9z"/><rect x="5" y="5" width="14" height="17" rx="2"/>',
         'history' => '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/>',
+        'search' => '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>',
     ];
 
     $content = $paths[$name] ?? $paths['file'];

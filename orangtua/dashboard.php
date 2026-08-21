@@ -220,6 +220,7 @@ $schoolLogo = rpt_asset([
 
 
 $foundationLogo = rpt_asset([
+    'assets/images/logo-tahsin.png',
     'assets/images/logo-yayasan.png',
     'assets/images/logo_yayasan.png',
     'assets/images/logo-bani-saleh.png',
@@ -507,6 +508,7 @@ $child = $stmt->fetch(
    ========================================================= */
 
 $dailyReports = [];
+$attendanceReports = [];
 $levelReports = [];
 $munaqReports = [];
 
@@ -557,6 +559,17 @@ if ($child) {
         );
 
         $dailyReports = [];
+    }
+
+    try {
+        $stmt = $pdo->prepare(
+            "SELECT * FROM daily_student_reports WHERE student_id = ? ORDER BY tanggal DESC, created_at DESC"
+        );
+        $stmt->execute([$child['id']]);
+        $attendanceReports = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Throwable $error) {
+        error_log('[NGAJIYUK!] Attendance report query: ' . $error->getMessage());
+        $attendanceReports = [];
     }
 
 
@@ -651,6 +664,13 @@ if ($child) {
         $date =
             rpt_date_key($row);
 
+        if ($date !== '') {
+            $dates[] = $date;
+        }
+    }
+
+    foreach ($attendanceReports as $row) {
+        $date = rpt_date_key($row);
         if ($date !== '') {
             $dates[] = $date;
         }
@@ -2742,7 +2762,8 @@ require ROOT_PATH
                 <button
                     type="button"
                     data-print-report="daily-report"
-                    <?= !$dailySelected
+                    data-official-url="<?= e(url('report.php?student_id=' . urlencode((string) $child['id']) . '&type=daily&date=' . urlencode($selectedDate))) ?>"
+                    <?= !$selectedDate
                         ? 'disabled'
                         : ''
                     ?>
@@ -3124,6 +3145,7 @@ require ROOT_PATH
                 <button
                     type="button"
                     data-print-report="level-report"
+                    data-official-url="<?= e(url('report.php?student_id=' . urlencode((string) $child['id']) . '&type=level')) ?>"
                     <?= !$latestLevel
                         ? 'disabled'
                         : ''
@@ -3558,6 +3580,7 @@ require ROOT_PATH
                 <button
                     type="button"
                     data-print-report="munaqosyah-report"
+                    data-official-url="<?= e(url('report.php?student_id=' . urlencode((string) $child['id']) . '&type=munaqosyah')) ?>"
                     <?= !$latestMunaq
                         ? 'disabled'
                         : ''
@@ -3976,8 +3999,8 @@ function render_legacy_header(
 
 
         <div class="legacy-address">
-            Jl. Pangeran RT 001/008 Desa Lubang Buaya,
-            Kec. Setu, Kab. Bekasi
+            Jl. Pangeran RT 001/008 Desa Lubang Buaya Kec. Setu Kab. Bekasi
+            &middot; sdilabschoolbanisalehsetu@gmail.com
         </div>
 
 
@@ -4250,6 +4273,11 @@ function render_legacy_signatures(
                 () => {
 
                     if (button.disabled) {
+                        return;
+                    }
+
+                    if (button.dataset.officialUrl) {
+                        window.open(button.dataset.officialUrl, '_blank', 'noopener');
                         return;
                     }
 

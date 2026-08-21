@@ -127,14 +127,52 @@ if ($action === 'save') {
             throw new RuntimeException('Guru aktif tidak ditemukan.');
         }
     }
-    $pdo->prepare(
-        'INSERT INTO classes (id, teacher_id, nama_kelas, tingkat, rombel, wali_kelas, tahun_ajaran, aktif)
-         VALUES (?, ?, ?, ?, ?, ?, ?, 1)
-         ON DUPLICATE KEY UPDATE teacher_id = VALUES(teacher_id), wali_kelas = VALUES(wali_kelas),
-                                 aktif = 1, updated_at = NOW()'
-    )->execute([uuidv4(), $teacherId, $class, (int) $class[0], $class[1], $teacherName, $year]);
+    $originalClass = normalize_class_name((string) ($data['original_class'] ?? ''));
+    $pdo->beginTransaction();
+    try {
+        if ($originalClass !== '' && $originalClass !== $class) {
+            if (!in_array($originalClass, all_class_names(), true)) {
+                throw new RuntimeException('Kelas asal tidak valid.');
+            }
+            $update = $pdo->prepare(
+                'UPDATE classes SET teacher_id=?, nama_kelas=?, tingkat=?, rombel=?, wali_kelas=?, aktif=1, updated_at=NOW()
+                 WHERE nama_kelas=? AND tahun_ajaran=?'
+            );
+            $update->execute([$teacherId, $class, (int) $class[0], $class[1], $teacherName, $originalClass, $year]);
+            if ($update->rowCount() === 0) throw new RuntimeException('Kelas asal tidak ditemukan.');
+            $pdo->prepare('UPDATE students SET kelas=?, teacher_id=COALESCE(teacher_id,?), updated_at=NOW() WHERE kelas=?')
+                ->execute([$class, $teacherId, $originalClass]);
+        } else {
+            $pdo->prepare(
+                'INSERT INTO classes (id, teacher_id, nama_kelas, tingkat, rombel, wali_kelas, tahun_ajaran, aktif)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, 1)
+                 ON DUPLICATE KEY UPDATE teacher_id=VALUES(teacher_id), wali_kelas=VALUES(wali_kelas),
+                                         aktif=1, updated_at=NOW()'
+            )->execute([uuidv4(), $teacherId, $class, (int) $class[0], $class[1], $teacherName, $year]);
+        }
+        $pdo->commit();
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        if ($error instanceof PDOException && str_contains(strtolower($error->getMessage()), 'duplicate')) {
+            throw new RuntimeException('Kelas tujuan sudah tersedia pada tahun ajaran ini.');
+        }
+        throw $error;
+    }
     audit_event('class_saved', 'success', $teacherId, ['kelas' => $class, 'tahun_ajaran' => $year]);
     json_response(true, 'Data kelas berhasil disimpan.');
+}
+
+if ($action === 'delete') {
+    $count = $pdo->prepare('SELECT COUNT(*) FROM students WHERE kelas=?');
+    $count->execute([$class]);
+    if ((int) $count->fetchColumn() > 0) {
+        throw new RuntimeException('Kelas masih memiliki siswa. Pindahkan siswa sebelum menghapus kelas.');
+    }
+    $statement = $pdo->prepare('DELETE FROM classes WHERE nama_kelas=? AND tahun_ajaran=?');
+    $statement->execute([$class, $year]);
+    if ($statement->rowCount() === 0) throw new RuntimeException('Kelas tidak ditemukan.');
+    audit_event('class_deleted', 'success', null, ['kelas'=>$class,'tahun_ajaran'=>$year]);
+    json_response(true, 'Kelas kosong berhasil dihapus.');
 }
 
 throw new RuntimeException('Aksi kelas tidak dikenali.');

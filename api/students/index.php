@@ -84,8 +84,8 @@ if ($action === 'create' || $action === 'update') {
     $nik = preg_replace('/\D+/', '', trim((string) ($data['nik'] ?? ''))) ?: null;
     $status = trim((string) ($data['status'] ?? 'aktif'));
 
-    if ($name === '' || mb_strlen($name) > 190 || $nis === '' || mb_strlen($nis) > 80) {
-        throw new RuntimeException('Nama lengkap dan NIS wajib diisi dengan benar.');
+    if ($name === '' || mb_strlen($name) > 190 || mb_strlen($nis) > 80) {
+        throw new RuntimeException('Nama lengkap wajib diisi dengan benar.');
     }
     if (!in_array($kelas, all_class_names(), true) || $level < 1 || $level > 9) {
         throw new RuntimeException('Kelas harus 1A sampai 6B dan level harus 1 sampai 9.');
@@ -121,6 +121,47 @@ if ($action === 'create' || $action === 'update') {
             throw new RuntimeException('Isian ' . str_replace('_', ' ', $key) . ' terlalu panjang.');
         }
         return $value;
+    };
+
+    if ($nis === '') {
+        $lastNis = (string) $pdo->query(
+            "SELECT nis FROM students WHERE nis REGEXP '^[0-9]+$' ORDER BY CHAR_LENGTH(nis) DESC, CAST(nis AS UNSIGNED) DESC LIMIT 1"
+        )->fetchColumn();
+        $width = max(9, strlen($lastNis));
+        $nis = str_pad((string) (max(230110000, (int) $lastNis) + 1), $width, '0', STR_PAD_LEFT);
+    }
+
+    $storePhoto = static function (array $file, ?string $oldPath = null): ?string {
+        if (($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+            return $oldPath;
+        }
+        if (($file['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
+            throw new RuntimeException('Foto siswa gagal diunggah.');
+        }
+        if ((int) ($file['size'] ?? 0) > MAX_UPLOAD_SIZE) {
+            throw new RuntimeException('Ukuran foto maksimal 2 MB.');
+        }
+        $mime = (new finfo(FILEINFO_MIME_TYPE))->file((string) $file['tmp_name']);
+        $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+        if (!isset($allowed[$mime])) {
+            throw new RuntimeException('Foto harus berformat JPG, PNG, atau WEBP.');
+        }
+        $directory = UPLOAD_PATH . DIRECTORY_SEPARATOR . 'students';
+        if (!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory)) {
+            throw new RuntimeException('Folder foto siswa tidak dapat dibuat.');
+        }
+        $filename = bin2hex(random_bytes(16)) . '.' . $allowed[$mime];
+        $destination = $directory . DIRECTORY_SEPARATOR . $filename;
+        if (!move_uploaded_file((string) $file['tmp_name'], $destination)) {
+            throw new RuntimeException('Foto siswa gagal disimpan.');
+        }
+        if ($oldPath && str_starts_with($oldPath, 'uploads/students/')) {
+            $oldAbsolute = ROOT_PATH . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $oldPath);
+            if (is_file($oldAbsolute)) {
+                @unlink($oldAbsolute);
+            }
+        }
+        return 'uploads/students/' . $filename;
     };
 
     try {
@@ -163,10 +204,26 @@ if ($action === 'create' || $action === 'update') {
             $optional($data, 'no_telp'),
             $status,
         ];
-        if ($action === 'update') {
+        if ($action === 'create') {
+            array_unshift($values, $id);
+        } else {
             $values[] = $id;
         }
         $statement->execute($values);
+
+        if (isset($_FILES['foto']) && is_array($_FILES['foto'])) {
+            $oldPhoto = null;
+            if ($action === 'update') {
+                $photoStatement = $pdo->prepare('SELECT foto_url FROM students WHERE id = ?');
+                $photoStatement->execute([$id]);
+                $oldPhoto = $photoStatement->fetchColumn() ?: null;
+            }
+            $photoPath = $storePhoto($_FILES['foto'], $oldPhoto);
+            if ($photoPath !== $oldPhoto) {
+                $pdo->prepare('UPDATE students SET foto_url = ?, updated_at = NOW() WHERE id = ?')
+                    ->execute([$photoPath, $id]);
+            }
+        }
 
         audit_event(
             $action === 'create' ? 'student_created' : 'student_updated',
