@@ -37,7 +37,7 @@ mklink /J "C:\xampp\htdocs\ngajiyuk" "%USERPROFILE%\Downloads\ngajiyuk"
 2. Buka `http://localhost/phpmyadmin/`.
 3. Pilih menu **Import**.
 4. Pilih `database/ngajiyuk.sql`.
-5. Klik **Import/Go**. Script otomatis membuat database `ngajiyuk`, 16 tabel, master 12 kelas, dan 48 surat kurikulum.
+5. Klik **Import/Go**. Script otomatis membuat database `ngajiyuk`, tabel aplikasi, master 12 kelas, dan 48 surat kurikulum.
 
 Alternatif terminal:
 
@@ -82,9 +82,23 @@ Konfigurasi dapat dioverride tanpa mengubah source menggunakan environment varia
 - Pendaftaran Guru menunggu persetujuan Admin.
 - Pendaftaran Orang Tua memerlukan NIS yang valid dan belum diklaim; akun tetap mengikuti status persetujuan pada backend.
 
-## Import siswa
+## Import dan ekspor siswa/kelas
 
-Halaman Daftar Siswa menerima `.xlsx` dan `.csv` hingga 8 MB. Header dicari otomatis, termasuk `NIS`, `Nama Peserta Didik/Nama Siswa`, kelas, jenis kelamin, NIK, orang tua, alamat, dan telepon. NIS menjadi kunci upsert sehingga impor ulang memperbarui data tanpa menggandakan siswa.
+- Halaman Daftar Siswa menerima `.xlsx` dan `.csv` hingga 8 MB.
+- Template utama berbentuk XLSX, memakai dua logo resmi, kop sekolah, format kolom, filter, dan validasi pilihan.
+- Template CSV memakai pemisah titik koma agar kolom terbuka dengan benar pada Excel regional Indonesia.
+- Header dicari otomatis, termasuk `NIS`, `Nama Peserta Didik/Nama Siswa`, kelas, level, jenis kelamin, NIK, orang tua, alamat, dan telepon.
+- Nilai pada kolom `Level/Jenjang Tahfidz` digunakan per baris; Level Default hanya dipakai jika kolom tersebut kosong atau tidak valid.
+- NIS menjadi kunci upsert sehingga impor ulang memperbarui data tanpa menggandakan siswa.
+- Data kelas dapat diekspor ke empat XLSX berkop dan berlogo: Presensi & Tadarus, Nilai per Surat, Ujian Kenaikan Level, dan Munaqosyah.
+- Setiap jenis ekspor juga menyediakan CSV sebagai opsi data mentah. NIS, tanggal, dan nomor lain ditulis sebagai teks pada XLSX agar tidak berubah menjadi notasi ilmiah atau `#######`.
+
+## Kenaikan kelas dan level
+
+- Kelas sekolah dan Level Tahfidz adalah dua data yang berbeda.
+- Siswa yang naik dari kelas 1A ke 2A diubah melalui Edit Data Siswa. Perubahan kelas tidak menghapus atau mengubah riwayat laporan dan tidak mereset Level Tahfidz.
+- Saat hasil Ujian Kenaikan Level memenuhi nilai minimum dan berstatus `Lulus`, sistem otomatis mengubah level siswa ke level tujuan dalam transaksi database yang sama.
+- Jika nilai belum lulus, hasil ujian tetap tersimpan tetapi level siswa tidak berubah.
 
 ## Upload
 
@@ -126,6 +140,6 @@ ngajiyuk/
 |- assets/      CSS, JavaScript, logo, gambar
 |- uploads/     penyimpanan lokal tervalidasi
 |- database/    schema dan seed MariaDB
-|- docs/        checklist migrasi
-|- tests/       smoke test database
+|- docs/        checklist migrasi dan galeri screenshot UI/UX
+|- tests/       smoke test, audit render, kompatibilitas Excel, ekspor kelas, dan tes kenaikan level
 ```

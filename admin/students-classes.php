@@ -2930,6 +2930,15 @@ tr:nth-child(even)
 
                     <button
                         type="button"
+                        class="sk-tab-button"
+                        data-modal-open="admin-class-export"
+                    >
+                        <?= svg_icon('file', 15) ?>
+                        Ekspor Excel
+                    </button>
+
+                    <button
+                        type="button"
                         class="
                             sk-tab-button
                             <?= $activeTab
@@ -3801,6 +3810,45 @@ tr:nth-child(even)
             </div>
 
         </section>
+
+        <div class="modal" id="admin-class-export" aria-hidden="true">
+            <div class="modal-card">
+                <div class="modal-head">
+                    <div>
+                        <p class="eyebrow">EKSPOR DATA KELAS</p>
+                        <h2>Kelas <?= e($selectedClass) ?></h2>
+                        <p class="muted">XLSX berisi kop, dua logo, dan kolom yang sudah dirapikan. CSV tetap tersedia sebagai data mentah.</p>
+                    </div>
+                    <button class="modal-close" type="button" data-modal-close aria-label="Tutup">&times;</button>
+                </div>
+                <div class="form-grid">
+                    <?php foreach ([
+                        'daily' => 'Presensi & Tadarus',
+                        'surah' => 'Nilai per Surat',
+                        'level' => 'Ujian Kenaikan Level',
+                        'munaqosyah' => 'Form Munaqosyah',
+                    ] as $exportType => $exportLabel): ?>
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;border:1px solid #dfe6e2;border-radius:13px">
+                            <strong><?= e($exportLabel) ?></strong>
+                            <span style="display:flex;gap:7px">
+                                <a class="btn btn-primary btn-sm" href="<?= e(url('api/classes/export.php') . '?' . http_build_query([
+                                    'kelas' => $selectedClass,
+                                    'tahun_ajaran' => $selectedYear,
+                                    'type' => $exportType,
+                                    'format' => 'xlsx',
+                                ])) ?>"><?= svg_icon('file', 14) ?> XLSX</a>
+                                <a class="btn btn-soft btn-sm" href="<?= e(url('api/classes/export.php') . '?' . http_build_query([
+                                    'kelas' => $selectedClass,
+                                    'tahun_ajaran' => $selectedYear,
+                                    'type' => $exportType,
+                                    'format' => 'csv',
+                                ])) ?>">CSV</a>
+                            </span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
 
     </section>
 

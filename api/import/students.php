@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require dirname(__DIR__) . '/bootstrap.php';
 require ROOT_PATH . '/includes/XlsxReader.php';
+require ROOT_PATH . '/includes/StudentTemplateXlsx.php';
 
 
 $user = require_api_user(
@@ -12,6 +13,11 @@ $user = require_api_user(
 );
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['action'] ?? '') === 'template') {
+    StudentTemplateXlsx::download();
+}
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['action'] ?? '') === 'template_csv') {
     header('Content-Type: text/csv; charset=utf-8', true);
     header('Content-Disposition: attachment; filename="template-data-siswa.csv"');
     echo "\xEF\xBB\xBF";
@@ -19,12 +25,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && ($_GET['action'] ?? '') === 'templat
     fputcsv($output, [
         'Nama Peserta Didik', 'L/P', 'NIS', 'NIK', 'Tempat/Tanggal Lahir',
         'Ayah', 'Ibu', 'Wali Murid', 'Alamat', 'Nomor Telepon', 'Kelas', 'Level',
-    ]);
+    ], ';');
     fputcsv($output, [
         'Contoh Nama Siswa', 'L', '262701001', '3275010101010001',
         'Bekasi, 1 Januari 2020', 'Nama Ayah', 'Nama Ibu', '',
         'Alamat lengkap', '081234567890', '1A', '1',
-    ]);
+    ], ';');
     fclose($output);
     exit;
 }
@@ -336,6 +342,13 @@ $aliases = [
         'NO TELEPON',
         'NOMOR TELEPON',
         'HP'
+    ],
+
+    'level' => [
+        'LEVEL',
+        'JENJANG',
+        'JENJANG TAHFIDZ',
+        'LEVEL TAHFIDZ'
     ],
 ];
 
@@ -684,6 +697,29 @@ try {
         }
 
 
+        $rowLevelRaw =
+            preg_replace(
+                '/\D+/',
+                '',
+                $get('level')
+            ) ?? '';
+
+
+        $rowLevel =
+            $rowLevelRaw !== ''
+                ? (int) $rowLevelRaw
+                : $defaultLevel;
+
+
+        if (
+            $rowLevel < 1 ||
+            $rowLevel > 9
+        ) {
+            $rowLevel =
+                $defaultLevel;
+        }
+
+
         $genderRaw =
             strtoupper(
                 $get('jenis_kelamin')
@@ -728,7 +764,7 @@ try {
             $name,
             $nis,
             $className,
-            $defaultLevel,
+            $rowLevel,
             $gender,
             $nik,
             $get(

@@ -159,9 +159,21 @@ final class XlsxReader
             $values = [];
 
             foreach ($row->c as $cell) {
+                /*
+                 * SimpleXML tidak selalu mengekspos atribut elemen yang
+                 * berada di default namespace melalui $cell['r']. Ambil
+                 * atribut secara eksplisit agar file XLSX buatan Excel,
+                 * LibreOffice, maupun template internal terbaca konsisten.
+                 */
+                $attributes =
+                    $cell->attributes();
+
                 $reference =
                     strtoupper(
-                        (string) $cell['r']
+                        (string) (
+                            $attributes['r']
+                            ?? ''
+                        )
                     );
 
                 if (
@@ -180,7 +192,10 @@ final class XlsxReader
                     );
 
                 $type =
-                    (string) $cell['t'];
+                    (string) (
+                        $attributes['t']
+                        ?? ''
+                    );
 
                 $cellChildren =
                     self::mainChildren(
