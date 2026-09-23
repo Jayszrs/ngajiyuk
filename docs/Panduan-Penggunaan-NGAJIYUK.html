@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Panduan Penggunaan NGAJIYUK!</title>
+  <style>
+    :root {
+      --ink: #102d22;
+      --green: #087b53;
+      --green-dark: #174c39;
+      --mint: #e9f7f0;
+      --lime: #b7e33b;
+      --orange: #f59e0b;
+      --muted: #63736b;
+      --line: #dce6e1;
+      --paper: #ffffff;
+      --soft: #f4f8f6;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #dfe7e3; color: var(--ink); font-family: "Segoe UI", Arial, sans-serif; }
+    body { counter-reset: page; }
+    .page {
+      position: relative;
+      width: 297mm;
+      height: 210mm;
+      margin: 8mm auto;
+      padding: 16mm 18mm 14mm;
+      overflow: hidden;
+      background: var(--paper);
+      page-break-after: always;
+      counter-increment: page;
+    }
+    .page:last-child { page-break-after: auto; }
+    .page::after {
+      content: counter(page);
+      position: absolute;
+      right: 18mm;
+      bottom: 7mm;
+      color: #82928a;
+      font-size: 9pt;
+      font-weight: 700;
+    }
+    .page::before {
+      content: "NGAJIYUK!  •  SD Islam Labschool Bani Saleh";
+      position: absolute;
+      left: 18mm;
+      bottom: 7mm;
+      color: #82928a;
+      font-size: 8pt;
+      letter-spacing: .04em;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: 35pt; line-height: 1.02; letter-spacing: -.045em; }
+    h2 { margin-bottom: 4mm; font-size: 24pt; line-height: 1.1; letter-spacing: -.025em; }
+    h3 { margin-bottom: 2mm; font-size: 14pt; }
+    p, li { font-size: 11pt; line-height: 1.48; }
+    ul, ol { margin: 2mm 0 0; padding-left: 6mm; }
+    li { margin-bottom: 1.5mm; }
+    .kicker { margin-bottom: 2.5mm; color: var(--green); font-size: 9pt; font-weight: 900; letter-spacing: .17em; text-transform: uppercase; }
+    .lead { color: var(--muted); font-size: 14pt; line-height: 1.45; }
+    .muted { color: var(--muted); }
+    .small { font-size: 9pt; }
+    .brand { display: flex; align-items: center; gap: 4mm; }
+    .brand img { width: 18mm; height: 18mm; object-fit: contain; }
+    .brand strong { display: block; font-size: 19pt; letter-spacing: -.03em; }
+    .brand span { display: block; color: var(--green); font-size: 8pt; font-weight: 800; letter-spacing: .05em; }
+    .cover { padding: 0; background: linear-gradient(125deg, #103f2f 0%, #087b53 62%, #0ba66c 100%); color: #fff; }
+    .cover::before, .cover::after { display: none; }
+    .cover-inner { position: relative; height: 100%; padding: 20mm 22mm; }
+    .cover .brand img { padding: 2mm; border-radius: 5mm; background: #fff; }
+    .cover .brand span { color: #bdebd7; }
+    .cover-copy { width: 61%; margin-top: 27mm; }
+    .cover h1 { margin-bottom: 6mm; font-size: 48pt; }
+    .cover .lead { color: #dcf8eb; font-size: 17pt; }
+    .cover-card { position: absolute; right: 22mm; top: 41mm; width: 78mm; padding: 9mm; border: 1px solid rgba(255,255,255,.26); border-radius: 8mm; background: rgba(255,255,255,.13); backdrop-filter: blur(8px); }
+    .cover-card h3 { font-size: 18pt; }
+    .cover-card p { color: #e3f8ee; }
+    .cover-badge { display: inline-block; margin-top: 3mm; padding: 2mm 4mm; border-radius: 99px; background: var(--lime); color: #173723; font-size: 9pt; font-weight: 900; }
+    .cover-wave { position: absolute; left: -20mm; right: -20mm; bottom: -35mm; height: 62mm; border-radius: 50%; background: rgba(255,255,255,.08); transform: rotate(-3deg); }
+    .section-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8mm; margin-bottom: 7mm; }
+    .section-head p { max-width: 105mm; margin-bottom: 0; color: var(--muted); }
+    .role-pill { display: inline-flex; align-items: center; gap: 2mm; padding: 2.5mm 4mm; border-radius: 99px; background: var(--mint); color: var(--green); font-size: 9pt; font-weight: 900; text-transform: uppercase; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5mm; }
+    .card { padding: 5mm; border: 1px solid var(--line); border-radius: 5mm; background: #fff; }
+    .card.soft { background: var(--soft); }
+    .card.green { background: var(--green-dark); color: #fff; border-color: var(--green-dark); }
+    .card.green p, .card.green li { color: #d9f2e7; }
+    .card-number { display: grid; width: 10mm; height: 10mm; margin-bottom: 3mm; place-items: center; border-radius: 3mm; background: var(--mint); color: var(--green); font-size: 12pt; font-weight: 900; }
+    .shot { display: block; width: 100%; border: 1px solid var(--line); border-radius: 4mm; background: #fff; object-fit: contain; box-shadow: 0 3mm 10mm rgba(16,45,34,.10); }
+    .shot.large { height: 121mm; }
+    .shot.medium { height: 91mm; }
+    .shot.smallshot { height: 62mm; }
+    .caption { margin-top: 2.5mm; color: var(--muted); font-size: 8.5pt; }
+    .split { display: grid; grid-template-columns: 42% 58%; gap: 7mm; align-items: start; }
+    .split-wide { display: grid; grid-template-columns: 34% 66%; gap: 7mm; align-items: start; }
+    .steps { display: grid; gap: 3mm; }
+    .step { display: grid; grid-template-columns: 10mm 1fr; gap: 3mm; align-items: start; }
+    .step b { display: grid; width: 9mm; height: 9mm; place-items: center; border-radius: 3mm; background: var(--green); color: #fff; }
+    .step p { margin: 0; font-size: 10.5pt; }
+    .flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3mm; margin: 5mm 0 7mm; }
+    .flow .node { position: relative; padding: 4mm 3mm; border-radius: 4mm; background: var(--mint); text-align: center; font-size: 9.5pt; font-weight: 800; }
+    .flow .node:not(:last-child)::after { content: "›"; position: absolute; right: -3mm; top: 50%; z-index: 2; color: var(--green); font-size: 18pt; transform: translate(50%,-53%); }
+    .callout { padding: 4mm 5mm; border-left: 1.7mm solid var(--orange); border-radius: 0 3mm 3mm 0; background: #fff8e8; }
+    .callout p { margin: 0; font-size: 10pt; }
+    .check { list-style: none; padding-left: 0; }
+    .check li { position: relative; padding-left: 6mm; }
+    .check li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 900; }
+    .x li::before { content: "•"; color: var(--orange); }
+    .credentials { width: 100%; border-collapse: collapse; font-size: 10pt; }
+    .credentials th, .credentials td { padding: 3mm; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+    .credentials th { background: var(--green-dark); color: #fff; }
+    .credentials code { font-size: 9pt; word-break: break-all; }
+    .tag { display: inline-block; padding: 1.5mm 3mm; border-radius: 99px; background: var(--mint); color: var(--green); font-size: 8pt; font-weight: 900; }
+    .two-shots { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+    .three-shots { display: grid; grid-template-columns: repeat(3,1fr); gap: 4mm; }
+    .shot-card { padding: 3mm; border: 1px solid var(--line); border-radius: 4mm; background: var(--soft); }
+    .shot-card h3 { margin: 2.5mm 1mm 1mm; font-size: 12pt; }
+    .shot-card p { margin: 0 1mm 1mm; color: var(--muted); font-size: 8.5pt; line-height: 1.4; }
+    .toc { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm 10mm; margin-top: 5mm; }
+    .toc div { display: flex; justify-content: space-between; gap: 4mm; padding: 3mm 0; border-bottom: 1px dotted #aebdb5; font-size: 11pt; }
+    .toc b { color: var(--green); }
+    .security { display: grid; grid-template-columns: repeat(4,1fr); gap: 4mm; }
+    .security .card { min-height: 53mm; }
+    @page { size: A4 landscape; margin: 0; }
+    @media print {
+      html, body { background: #fff; }
+      .page { margin: 0; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+
+<section class="page cover">
+  <div class="cover-inner">
+    <div class="brand">
+      <img src="../assets/images/logo.png" alt="Logo sekolah">
+      <div><strong>NGAJIYUK!</strong><span>SD ISLAM LABSCHOOL BANI SALEH</span></div>
+    </div>
+    <div class="cover-copy">
+      <p class="kicker" style="color:#bdebd7">MODUL PANDUAN PENGGUNA</p>
+      <h1>Catatan Mengaji Digital</h1>
+      <p class="lead">Panduan praktis untuk Administrator, Guru, dan Orang Tua—mulai dari mengelola akun sampai mencetak rapor perkembangan siswa.</p>
+      <span class="cover-badge">Versi repo lokal • Tahun Ajaran 2026/2027</span>
+    </div>
+    <aside class="cover-card">
+      <h3>Satu data, tiga peran</h3>
+      <p>Guru mencatat. Administrator memantau. Orang Tua mengikuti perkembangan anak.</p>
+      <p class="small" style="margin-bottom:0">Disusun berdasarkan fitur dan tampilan aktual pada repository NGAJIYUK!.</p>
+    </aside>
+    <div class="cover-wave"></div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="section-head">
+    <div><p class="kicker">DAFTAR ISI</p><h2>Cara memakai modul ini</h2></div>
+    <p>Ikuti bagian sesuai peran akun. Untuk simulasi lengkap, mulai sebagai Guru, masukkan laporan anak contoh, lalu masuk sebagai Orang Tua untuk melihat hasilnya.</p>
+  </div>
+  <div class="toc">
+    <div><span>Persiapan dan cara masuk</span><b>3</b></div>
+    <div><span>Peran dan batas akses</span><b>4</b></div>
+    <div><span>Panduan Administrator</span><b>5–7</b></div>
+    <div><span>Alur kerja Guru</span><b>8</b></div>
+    <div><span>Kelola siswa dan kelas</span><b>9</b></div>
+    <div><span>Presensi dan laporan harian</span><b>10</b></div>
+    <div><span>Ujian level dan Munaqosyah</span><b>11</b></div>
+    <div><span>Kurikulum, nilai, dan rapor</span><b>12</b></div>
+    <div><span>Panduan Orang Tua</span><b>13–14</b></div>
+    <div><span>Keamanan dan pemecahan masalah</span><b>15</b></div>
+    <div><span>Akun dan data demonstrasi</span><b>16</b></div>
+  </div>
+  <div class="grid-3" style="margin-top:11mm">
+    <article class="card green"><h3>Administrator</h3><p>Persetujuan akun, monitoring, hubungan Orang Tua–anak, kelengkapan laporan, dan audit aktivitas.</p></article>
+    <article class="card"><h3>Guru</h3><p>Data siswa dan kelas, presensi, nilai per surat, ujian level, Munaqosyah, serta tiga rapor otomatis.</p></article>
+    <article class="card soft"><h3>Orang Tua</h3><p>Melihat anak yang terhubung, laporan dan nilai, target surat, rapor, serta memperbarui biodata akun.</p></article>
+  </div>
+  <div class="callout" style="margin-top:8mm"><p><strong>Catatan:</strong> tangkapan layar di modul berasal dari <code>docs/ui-ux-screenshots</code>. Nama dan angka pada layar dapat berbeda dari database saat ini, tetapi menu dan alurnya sama.</p></div>
+</section>
+
+<section class="page">
+  <div class="section-head">
+    <div><p class="kicker">MULAI</p><h2>Masuk ke aplikasi</h2></div>
+    <span class="role-pill">Semua peran</span>
+  </div>
+  <div class="split-wide">
+    <div>
+      <div class="steps">
+        <div class="step"><b>1</b><p>Nyalakan <strong>Apache</strong> dan <strong>MySQL</strong> melalui XAMPP.</p></div>
+        <div class="step"><b>2</b><p>Buka <strong>http://localhost/ngajiyuk/</strong>, lalu pilih tombol masuk.</p></div>
+        <div class="step"><b>3</b><p>Isi <strong>username atau email</strong> dan password. Sistem mengarahkan pengguna ke dashboard sesuai role.</p></div>
+        <div class="step"><b>4</b><p>Jika lupa password, pilih <strong>Lupa password?</strong>. Tautan reset lokal berlaku 30 menit dan hanya dapat dipakai sekali.</p></div>
+      </div>
+      <div class="callout" style="margin-top:6mm"><p>Akun baru Guru menunggu persetujuan Administrator. Akun Orang Tua perlu dihubungkan ke NIS siswa aktif yang belum diklaim.</p></div>
+    </div>
+    <div>
+      <img class="shot large" src="ui-ux-screenshots/public/login.png" alt="Halaman login NGAJIYUK">
+      <p class="caption">Kolom login menerima username atau email. Jangan membagikan password akun operasional.</p>
+    </div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="section-head">
+    <div><p class="kicker">HAK AKSES</p><h2>Kenali batas setiap peran</h2></div>
+    <p>Pemisahan akses menjaga data siswa tetap terkendali. Menu yang tampil menyesuaikan role pengguna.</p>
+  </div>
+  <div class="grid-3">
+    <article class="card green">
+      <span class="tag">ADMIN</span><h3 style="margin-top:4mm">Mengatur dan memantau</h3>
+      <ul class="check"><li>Menyetujui dan mengelola akun</li><li>Memantau Guru dan Orang Tua</li><li>Mengelola siswa, kelas, dan relasi</li><li>Melihat kelengkapan laporan dan audit</li></ul>
+    </article>
+    <article class="card">
+      <span class="tag">GURU</span><h3 style="margin-top:4mm">Mencatat pembelajaran</h3>
+      <ul class="check"><li>Tambah, edit, impor siswa</li><li>Presensi dan catatan harian</li><li>Nilai Tahsin–Tahfidz per surat</li><li>Ujian level, Munaqosyah, dan rapor</li></ul>
+    </article>
+    <article class="card soft">
+      <span class="tag">ORANG TUA</span><h3 style="margin-top:4mm">Memantau satu anak</h3>
+      <ul class="check"><li>Melihat laporan dan nilai anak</li><li>Melihat target surat sesuai level</li><li>Mengunduh atau mencetak rapor</li><li>Mengubah biodata akun sendiri</li></ul>
+    </article>
+  </div>
+  <div class="flow">
+    <div class="node">Guru mengisi data</div><div class="node">Sistem menghitung</div><div class="node">Rapor terbentuk</div><div class="node">Admin memantau</div><div class="node">Orang Tua melihat</div>
+  </div>
+  <div class="grid-2">
+    <div class="callout"><p><strong>Data akademik anak</strong> dikelola Guru/Administrator. Tombol Edit Biodata Anak pada dashboard Orang Tua menampilkan pemberitahuan dan tidak mengubah data akademik.</p></div>
+    <div class="callout"><p><strong>Satu akun Orang Tua</strong> memakai satu tautan anak aktif. Satu siswa tidak boleh diklaim oleh akun Orang Tua lain pada saat yang sama.</p></div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="section-head">
+    <div><p class="kicker">ADMINISTRATOR • 1</p><h2>Dashboard Monitoring</h2></div>
+    <span class="role-pill">Pusat kendali</span>
+  </div>
+  <div class="split">
+    <div>
+      <h3>Pemeriksaan harian</h3>
+      <ul class="check"><li>Lihat jumlah Guru, Orang Tua, siswa, kelas, laporan, dan ujian.</li><li>Buka bagian <strong>Perlu Perhatian</strong> untuk akun atau data yang perlu ditindaklanjuti.</li><li>Gunakan aktivitas terbaru untuk melihat perubahan terkini.</li><li>Buka tombol <strong>Panduan</strong> kapan saja bila perlu mengulang petunjuk.</li></ul>
+      <div class="callout" style="margin-top:6mm"><p>Administrator sebaiknya memeriksa akun pending dan kelengkapan laporan sebelum memeriksa audit teknis.</p></div>
+    </div>
+    <div><img class="shot large" src="ui-ux-screenshots/admin/dashboard.png" alt="Dashboard administrator"></div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="section-head">
+    <div><p class="kicker">ADMINISTRATOR • 2</p><h2>Akun dan hubungan Orang Tua–anak</h2></div>
+    <span class="role-pill">Validasi identitas</span>
+  </div>
+  <div class="two-shots">
+    <article class="shot-card"><img class="shot medium" src="ui-ux-screenshots/admin/manajemen-akun.png" alt="Manajemen akun"><h3>Persetujuan Akun</h3><p>Setujui pendaftaran, ubah role bila benar-benar dibutuhkan, aktifkan/nonaktifkan akun, atau buat akun baru.</p></article>
+    <article class="shot-card"><img class="shot medium" src="ui-ux-screenshots/admin/monitoring-orang-tua.png" alt="Monitoring orang tua"><h3>Monitoring Orang Tua</h3><p>Periksa wali, NIS dan siswa yang terhubung, kelas, kelengkapan biodata, serta aktivitas login.</p></article>
+  </div>
+  <div class="grid-2" style="margin-top:5mm">
+    <ul class="check"><li>Pastikan nama dan role sesuai identitas.</li><li>Hubungkan berdasarkan NIS yang benar.</li></ul>
+    <ul class="check x"><li>Jangan mengubah role hanya untuk membuka menu.</li><li>Jangan menghubungkan wali ke siswa yang salah.</li></ul>
+  </div>
+</section>
+
+<section class="page">
+  <div class="section-head">
+    <div><p class="kicker">ADMINISTRATOR • 3</p><h2>Data sekolah, kelengkapan, dan audit</h2></div>
+    <span class="role-pill">Kontrol mutu</span>
+  </div>
+  <div class="three-shots">
+    <article class="shot-card"><img class="shot smallshot" src="ui-ux-screenshots/admin/siswa-kelas.png" alt="Siswa dan kelas"><h3>Siswa & Kelas</h3><p>Filter kelas, Guru, level, dan tahun ajaran; periksa distribusi siswa dan wali mengaji.</p></article>
+    <article class="shot-card"><img class="shot smallshot" src="ui-ux-screenshots/admin/kelengkapan-laporan.png" alt="Kelengkapan laporan"><h3>Kelengkapan Laporan</h3><p>Temukan data belum lengkap dan tindak lanjuti Guru yang bertanggung jawab.</p></article>
+    <article class="shot-card"><img class="shot smallshot" src="ui-ux-screenshots/admin/audit-aktivitas.png" alt="Audit aktivitas"><h3>Audit Aktivitas</h3><p>Telusuri login, perubahan penting, aktor, target, status, dan waktu kejadian.</p></article>
+  </div>
+  <div class="flow" style="margin-top:8mm"><div class="node">Pilih tahun ajaran</div><div class="node">Filter data</div><div class="node">Temukan kekurangan</div><div class="node">Koordinasi perbaikan</div><div class="node">Konfirmasi di audit</div></div>
+  <div class="callout"><p>Ekspor kelas tersedia untuk kebutuhan rekap. Untuk data sensitif, simpan file hasil ekspor di lokasi yang hanya dapat diakses petugas berwenang.</p></div>
+</section>
+
+<section class="page">
+  <div class="section-head">
+    <div><p class="kicker">GURU • ALUR UTAMA</p><h2>Dari siswa sampai rapor</h2></div>
+    <span class="role-pill">Operasional pembelajaran</span>
+  </div>
+  <div class="flow"><div class="node">Periksa siswa</div><div class="node">Isi laporan harian</div><div class="node">Beri nilai surat</div><div class="node">Isi ujian</div><div class="node">Cetak rapor</div></div>
+  <div class="split">
+    <div>
+      <h3>Urutan yang disarankan</h3>
+      <ol><li>Pastikan NIS, kelas, level, dan status siswa benar.</li><li>Isi presensi, kegiatan, tadarus, hafalan, dan catatan.</li><li>Tambahkan nilai Tahsin–Tahfidz pada surat sesuai level.</li><li>Isi ujian kenaikan level atau Munaqosyah saat waktunya.</li><li>Buka 3 Rapor Otomatis dan periksa identitas serta nilainya.</li></ol>
+      <div class="callout" style="margin-top:4mm"><p>Ujian level berstatus <strong>Lulus</strong> memperbarui level siswa ke level tujuan. Hasil tidak lulus tetap tersimpan tanpa menaikkan level.</p></div>
+    </div>
+    <div><img class="shot large" src="ui-ux-screenshots/guru/dashboard.png" alt="Dashboard guru"></div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="section-head">
+    <div><p class="kicker">GURU • SISWA & KELAS</p><h2>Siapkan data sebelum menilai</h2></div>
+    <span class="role-pill">Data dasar</span>
+  </div>
+  <div class="two-shots">
+    <article class="shot-card"><img class="shot medium" src="ui-ux-screenshots/guru/daftar-siswa.png" alt="Daftar siswa"><h3>Daftar Siswa</h3><p>Cari/filter siswa; tambah, edit, atau hapus data; unduh template dan impor XLSX/CSV maksimal 8 MB.</p></article>
+    <article class="shot-card"><img class="shot medium" src="ui-ux-screenshots/guru/data-kelas.png" alt="Data kelas"><h3>Data Kelas</h3><p>Lihat siswa per kelas, distribusi level, kurikulum surat, dan ringkasan nilai; ekspor data sesuai kebutuhan.</p></article>
+  </div>
+  <div class="grid-3" style="margin-top:5mm">
+    <div class="card soft"><h3>NIS adalah kunci</h3><p class="small">Impor ulang dengan NIS yang sama memperbarui data dan tidak menggandakan siswa.</p></div>
+    <div class="card soft"><h3>Kelas ≠ level</h3><p class="small">Kenaikan kelas sekolah tidak otomatis mengubah Level Tahfidz atau menghapus riwayat.</p></div>
+    <div class="card soft"><h3>Periksa status</h3><p class="small">Hanya siswa berstatus aktif yang tampil pada form laporan dan penilaian utama.</p></div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="section-head">
+    <div><p class="kicker">GURU • LAPORAN HARIAN</p><h2>Catat kegiatan secara konsisten</h2></div>
+    <span class="role-pill">Satu siswa • satu tanggal</span>
+  </div>
+  <div class="split-wide">
+    <div>
+      <div class="steps"><div class="step"><b>1</b><p>Pilih siswa dan tanggal.</p></div><div class="step"><b>2</b><p>Pilih status Hadir, Izin, Sakit, atau Alpa.</p></div><div class="step"><b>3</b><p>Isi kegiatan, tadarus, hafalan, dan catatan Guru.</p></div><div class="step"><b>4</b><p>Simpan; penyimpanan ulang pada siswa/tanggal yang sama memperbarui laporan.</p></div><div class="step"><b>5</b><p>Buka bagian nilai per surat untuk mengisi empat komponen nilai 0–100.</p></div></div>
+      <div class="callout" style="margin-top:5mm"><p>Rata-rata nilai surat dihitung dari kelancaran, makhraj, tajwid, dan hafalan. Pilihan surat mengikuti kurikulum level siswa.</p></div>
+    </div>
+    <div><img class="shot large" src="ui-ux-screenshots/guru/presensi-harian.png" alt="Presensi dan laporan harian"></div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="section-head">
+    <div><p class="kicker">GURU • EVALUASI</p><h2>Ujian Kenaikan Level dan Munaqosyah</h2></div>
+    <span class="role-pill">Nilai otomatis</span>
+  </div>
+  <div class="two-shots">
+    <article class="shot-card"><img class="shot medium" src="ui-ux-screenshots/guru/ujian-level.png" alt="Ujian kenaikan level"><h3>Ujian Kenaikan Level</h3><p>Pilih siswa, level tujuan, surat, dan tanggal. Isi empat nilai; sistem menghitung rata-rata dan status berdasarkan KKM.</p></article>
+    <article class="shot-card"><img class="shot medium" src="ui-ux-screenshots/guru/munaqosyah.png" alt="Form Munaqosyah"><h3>Form Munaqosyah</h3><p>Isi kategori nilai, kepribadian, periode rapor, dan catatan. Jumlah, rata-rata, predikat, serta keluaran rapor tersusun otomatis.</p></article>
+  </div>
+  <div class="grid-2" style="margin-top:5mm">
+    <ul class="check"><li>Periksa siswa dan periode sebelum menyimpan.</li><li>Gunakan preview rapor untuk pemeriksaan akhir.</li></ul>
+    <ul class="check"><li>Nilai valid berada pada rentang 0–100.</li><li>Catatan Guru tetap penting selain angka dan predikat.</li></ul>
+  </div>
+</section>
+
+<section class="page">
+  <div class="section-head">
+    <div><p class="kicker">GURU • HASIL</p><h2>Kurikulum, komposisi, dan 3 rapor otomatis</h2></div>
+    <span class="role-pill">Siap cetak</span>
+  </div>
+  <div class="three-shots">
+    <article class="shot-card"><img class="shot smallshot" src="ui-ux-screenshots/guru/data-surat.png" alt="Data surat"><h3>Data Surat</h3><p>Kelola urutan surat berdasarkan tahun ajaran dan Level 1–9.</p></article>
+    <article class="shot-card"><img class="shot smallshot" src="ui-ux-screenshots/guru/komposisi-nilai.png" alt="Komposisi nilai"><h3>Komposisi Nilai</h3><p>Pahami bobot harian, ujian level, Munaqosyah, KKM, dan predikat.</p></article>
+    <article class="shot-card"><img class="shot smallshot" src="ui-ux-screenshots/guru/rapor-otomatis.png" alt="Rapor otomatis"><h3>3 Rapor Otomatis</h3><p>Pilih siswa dan jenis rapor: harian, level, atau Munaqosyah.</p></article>
+  </div>
+  <div class="flow" style="margin-top:7mm"><div class="node">Pilih siswa</div><div class="node">Pilih jenis rapor</div><div class="node">Pilih tanggal/periode</div><div class="node">Periksa preview</div><div class="node">Excel / PDF</div></div>
+  <div class="callout"><p>Jika rapor kosong, kembali ke form sumbernya: Presensi & Harian untuk rapor harian, Ujian Kenaikan Level untuk rapor level, atau Form Munaqosyah untuk rapor Munaqosyah.</p></div>
+</section>
+
+<section class="page">
+  <div class="section-head">
+    <div><p class="kicker">ORANG TUA • 1</p><h2>Pantau perkembangan anak</h2></div>
+    <span class="role-pill">Akses baca</span>
+  </div>
+  <div class="split">
+    <div>
+      <h3>Dashboard Anak</h3>
+      <ul class="check"><li>Pastikan nama, NIS, kelas, dan level anak benar.</li><li>Pilih tab Hafalan Harian, Hafalan Level, atau Munaqosyah.</li><li>Gunakan tanggal/periode untuk melihat riwayat.</li><li>Unduh Excel atau pilih Cetak/Simpan PDF bila tersedia.</li><li>Baca catatan Guru bersama nilai angka.</li></ul>
+      <div class="callout" style="margin-top:5mm"><p>Bila akun belum memiliki anak, masukkan NIS anak pada form penghubung. Hubungi Administrator jika NIS tidak ditemukan atau sudah tertaut ke akun lain.</p></div>
+    </div>
+    <div><img class="shot large" src="ui-ux-screenshots/orang-tua/dashboard.png" alt="Dashboard orang tua"></div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="section-head">
+    <div><p class="kicker">ORANG TUA • 2</p><h2>Nilai, target surat, dan biodata</h2></div>
+    <span class="role-pill">Pendampingan di rumah</span>
+  </div>
+  <div class="three-shots">
+    <article class="shot-card"><img class="shot smallshot" src="ui-ux-screenshots/orang-tua/komposisi-nilai.png" alt="Komposisi nilai orang tua"><h3>Komposisi Nilai</h3><p>Pahami bobot dan arti predikat agar hasil tidak dibaca hanya sebagai angka.</p></article>
+    <article class="shot-card"><img class="shot smallshot" src="ui-ux-screenshots/orang-tua/data-surat.png" alt="Data surat orang tua"><h3>Data Surat</h3><p>Lihat target surat sesuai level anak dan urutan kurikulum aktif.</p></article>
+    <article class="shot-card"><img class="shot smallshot" src="ui-ux-screenshots/orang-tua/profil.png" alt="Profil orang tua"><h3>Biodata Orang Tua</h3><p>Perbarui nama, telepon, alamat, catatan, serta foto profil akun Orang Tua.</p></article>
+  </div>
+  <div class="grid-2" style="margin-top:7mm">
+    <article class="card green"><h3>Gunakan untuk mendampingi</h3><p>Jadikan target surat dan catatan Guru sebagai bahan murojaah di rumah. Tanyakan ke Guru bila catatan perlu penjelasan.</p></article>
+    <article class="card"><h3>Data tidak muncul?</h3><p>Pastikan akun tertaut ke NIS yang benar, Guru sudah menyimpan laporan, serta tanggal/jenis rapor yang dipilih sesuai.</p></article>
+  </div>
+</section>
+
+<section class="page">
+  <div class="section-head">
+    <div><p class="kicker">KEAMANAN & BANTUAN</p><h2>Jaga akun dan atasi masalah umum</h2></div>
+    <span class="role-pill">Semua pengguna</span>
+  </div>
+  <div class="security">
+    <article class="card soft"><div class="card-number">1</div><h3>Password</h3><p class="small">Gunakan password unik. Ganti password demo sebelum dipakai di lingkungan nyata.</p></article>
+    <article class="card soft"><div class="card-number">2</div><h3>Keluar</h3><p class="small">Klik menu Keluar setelah memakai komputer bersama. Jangan hanya menutup tab.</p></article>
+    <article class="card soft"><div class="card-number">3</div><h3>Upload</h3><p class="small">Foto profil: JPEG/PNG/WebP, maksimal 2 MB. File impor siswa: XLSX/CSV, maksimal 8 MB.</p></article>
+    <article class="card soft"><div class="card-number">4</div><h3>Ekspor</h3><p class="small">File rapor dan data siswa mengandung informasi pribadi; simpan dan kirim secara terbatas.</p></article>
+  </div>
+  <table class="credentials" style="margin-top:7mm">
+    <thead><tr><th>Masalah</th><th>Pemeriksaan</th><th>Tindakan</th></tr></thead>
+    <tbody>
+      <tr><td>Tidak bisa login</td><td>Username/email, kapitalisasi password, status aktif, persetujuan akun</td><td>Coba Lupa Password atau hubungi Administrator.</td></tr>
+      <tr><td>Halaman tidak ditemukan</td><td>URL harus <code>/ngajiyuk/</code> dan Apache aktif</td><td>Periksa folder htdocs dan mod_rewrite.</td></tr>
+      <tr><td>Rapor kosong</td><td>Jenis rapor, siswa, tanggal, dan data sumber</td><td>Isi form sumber lalu muat ulang preview.</td></tr>
+      <tr><td>Impor gagal</td><td>Format/ukuran file dan ekstensi PHP zip+xml</td><td>Gunakan template resmi dan restart Apache setelah mengaktifkan ekstensi.</td></tr>
+      <tr><td>Database gagal</td><td>MySQL aktif dan database <code>ngajiyuk</code> tersedia</td><td>Periksa konfigurasi atau impor ulang schema/backup yang benar.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="page">
+  <div class="section-head">
+    <div><p class="kicker">LAMPIRAN DEMONSTRASI</p><h2>Akun dan data contoh siap dipakai</h2></div>
+    <span class="role-pill">Khusus lokal/pelatihan</span>
+  </div>
+  <table class="credentials">
+    <thead><tr><th>Jenis</th><th>Login / identitas</th><th>Password / detail</th><th>ID database</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Guru Demo</strong></td><td>Username: <strong>guru_demo</strong><br>Email: guru.demo@ngajiyuk.test</td><td>Password: <strong>GuruDemo123!</strong></td><td><code>40000000-0000-4000-8000-000000000001</code></td></tr>
+      <tr><td><strong>Orang Tua Demo</strong></td><td>Username: <strong>ortu_demo</strong><br>Email: ortu.demo@ngajiyuk.test</td><td>Password: <strong>OrtuDemo123!</strong></td><td><code>40000000-0000-4000-8000-000000000003</code></td></tr>
+      <tr><td><strong>Anak Demo</strong></td><td>Ahmad Fadhil (Demo)<br>NIS: <strong>269900999</strong></td><td>Kelas 2A • Level 2 • Aktif</td><td><code>40000000-0000-4000-8000-000000000005</code></td></tr>
+    </tbody>
+  </table>
+  <div class="grid-3" style="margin-top:7mm">
+    <article class="card soft"><h3>Data harian</h3><p class="small">Hadir pada 22 September 2026 dengan contoh tadarus, hafalan, dan catatan Guru.</p></article>
+    <article class="card soft"><h3>Nilai surat</h3><p class="small">Surah Quraisy ayat 1–4 dengan rata-rata nilai 85.</p></article>
+    <article class="card soft"><h3>Ujian level</h3><p class="small">Contoh kelulusan Level 1 ke Level 2 dengan rata-rata 82.</p></article>
+  </div>
+  <div class="callout" style="margin-top:7mm"><p><strong>Penting:</strong> akun ini hanya untuk pengujian lokal. Seed dapat dijalankan ulang dari <code>database/demo-accounts.sql</code>. Menjalankan ulang seed akan mengembalikan password demo ke nilai di atas.</p></div>
+  <div class="card green" style="margin-top:7mm; text-align:center"><h3 style="font-size:20pt">Selesai</h3><p style="margin-bottom:0">Mulai simulasi dari akun Guru, kemudian masuk sebagai Orang Tua untuk melihat hasil pada anak yang sama.</p></div>
+</section>
+
+</body>
+</html>
