@@ -971,6 +971,17 @@ button {
 .accent-top.accent-purple { border-top-color: #8b13ff; }
 .form-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .form-grid .span-2 { grid-column: span 2; }
+.level-exam-heading { display:flex; align-items:center; gap:14px; min-width:0; padding:2px 0 4px; }
+.level-exam-heading-icon { width:48px; height:48px; display:grid; place-items:center; flex:0 0 48px; border:1px solid #e6d5ff; border-radius:14px; background:linear-gradient(145deg,#f8f2ff,#f1e7ff); color:#7418d7; }
+.level-exam-heading-icon svg { width:22px; height:22px; }
+.level-exam-heading-kicker { display:block; margin-bottom:3px; color:#7a35c5; font-size:9px; font-weight:900; letter-spacing:.13em; }
+.level-exam-heading h2 { margin:0; color:var(--ink); font-size:20px; line-height:1.2; }
+.level-exam-heading p { margin:4px 0 0; color:var(--muted); font-size:12px; line-height:1.45; }
+.class-page-copy { min-width:320px; flex:1 1 auto; }
+.class-page-actions { flex:0 0 auto; flex-wrap:nowrap; justify-content:flex-end; gap:8px; }
+.class-page-actions form { display:flex; margin:0; }
+.class-page-actions .btn { min-height:40px; padding:8px 12px; font-size:11px; white-space:nowrap; }
+.class-create-button { box-shadow:0 7px 16px rgba(23,79,61,.16); }
 .btn-accent { background: #22c55e; color: #062b1d; border-color: #22c55e; }
 .btn-accent:hover { background: #1fbc56; }
 .advanced-form { margin-top: 22px; border-top: 1px solid var(--line); padding-top: 16px; }
@@ -984,6 +995,13 @@ button {
 @media (max-width: 820px) {
   .form-grid-3 { grid-template-columns: 1fr; }
   .form-grid .span-2 { grid-column: span 1; }
+  .level-exam-heading { padding-bottom:2px; }
+  .class-page-actions { width:100%; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .class-page-actions > *, .class-page-actions .btn { width:100%; }
+}
+@media (min-width: 821px) and (max-width: 1280px) {
+  .class-page-head { display:flex; align-items:stretch; flex-direction:column; }
+  .class-page-actions { width:100%; justify-content:flex-end; }
 }
 @media print {
   body {
