@@ -1670,9 +1670,7 @@ require ROOT_PATH . '/includes/header.php';
                                     class="
                                         am-password-button
                                     "
-                                    data-modal-open="
-                                        password-modal
-                                    "
+                                    data-modal-open="password-modal"
                                     data-password-user="<?= e(
                                         $accountId
                                     ) ?>"

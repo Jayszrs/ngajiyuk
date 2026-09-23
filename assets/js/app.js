@@ -269,8 +269,10 @@
             () => {
 
               const modalId =
-                button.dataset.modalOpen
-                || '';
+                (
+                  button.dataset.modalOpen
+                  || ''
+                ).trim();
 
               openModal(
                 document.getElementById(
